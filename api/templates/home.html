@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="row mb-2" style="text-align:center;margin-top:3vh;">
+    <div class="col">
+        <h4>Menu Principal</h4>
+    </div>
+</div>
+
+
+<div class="d-grid gap-2 col-6 mx-auto">
+    <a class="btn btn-outline-success" href="/cp" role="button">Cartas de Porte</a>
+    <a class="btn btn-outline-success" href="/contracts" role="button">Contratos</a>
+    <a class="btn btn-outline-success" href="/lpg" role="button">Liquidaciones</a>
+    <a class="btn btn-outline-primary" href="/dashboard" role="button">Dashboard</a>
+</div>
+
+{% endblock %}

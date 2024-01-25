@@ -9,3 +9,4 @@
 - FontAwesome: https://fontawesome.com/
 - Bootstrap: https://getbootstrap.com/docs/5.3/
 - Giphy: https://giphy.com/gifs/movie-despicable-me-minions-WxxsVAJLSBsFa
+- Green: #198754

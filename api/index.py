@@ -30,7 +30,8 @@ def login_is_required(view_func):
 def home():
     if 'password' in session:
         if session['password'] in password_accepted:
-            return redirect('/cp')
+            return render_template('home.html')
+            # return redirect('/cp')
     else:
         return redirect('/login')
 
@@ -97,6 +98,12 @@ def contracts():
 @app.route('/lpg')
 def lpg():
     return render_template('wip.html', title='Liquidaciones')
+
+
+@login_is_required
+@app.route('/dash')
+def dash():
+    return render_template('wip.html', title='Dashboard')
 
 
 if __name__ == '__main__':
