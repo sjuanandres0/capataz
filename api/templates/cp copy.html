@@ -1,0 +1,182 @@
+{% extends "layout.html" %}
+
+{% block title %} | {{ title }}{% endblock %}
+
+{% block content %}
+
+<style>
+    .nav-pills .nav-link {color: darkgreen;}
+    .nav-pills .nav-link.active {background-color:#198754};
+    .list-group-item {
+        background-color: white;
+    }
+
+    /* Target the active list-group-item and set its background color */
+    .list-group-item.active {
+        background-color: #198754;
+        color: white; /* Set text color to white for better visibility */
+        border-color: #198754;
+    }
+
+</style>
+
+<div class="container mx-auto">
+    <div class="d-grid gap-2 d-md-flex justify-content-sm-end">
+        <button class="btn btn-outline-success active" type="button">Nueva CP</button>
+    </div>
+</div>
+
+<hr>
+
+<div class="container mx-auto">
+    <ul class="nav nav-pills nav-fill" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="closed-tab" data-bs-toggle="tab"
+                type="button" role="tab"
+                aria-controls="closed-tab-pane"
+                aria-selected="true"
+                onclick="selectStatus('closed')">Cerradas</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="active-tab" data-bs-toggle="tab"
+                data-bs-target="#active-tab-pane" type="button" role="tab"
+                aria-controls="active-tab-pane"
+                aria-selected="false"
+                onclick="selectStatus('active')">Activas</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cancelled-tab" data-bs-toggle="tab"
+                data-bs-target="#cancelled-tab-pane" type="button" role="tab"
+                aria-controls="cancelled-tab-pane"
+                aria-selected="false"
+                onclick="selectStatus('canceled')">Canceladas</button>
+        </li>
+    </ul>
+</div>
+<hr>
+
+<div class="container mx-auto">
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="closed-tab-pane"
+            role="tabpanel" aria-labelledby="closed-tab" tabindex="0">
+
+            <div class="btn-group-vertical d-flex" role="group"
+                aria-label="Vertical button group">
+                {% for cp in params.grouped_cp['closed'] %}
+                <button type="button" class="btn btn-outline-success"
+                    onclick='selectCp({{cp|tojson}})'>{{ cp.id + ' - ' +
+                    cp.destination
+                    + ' - ' + cp.type }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="active-tab-pane" role="tabpanel"
+            aria-labelledby="active-tab" tabindex="0">
+            <div class="btn-group-vertical d-flex" role="group"
+                aria-label="Vertical button group">
+                {% for cp in params.grouped_cp['open'] %}
+                <button type="button" class="btn btn-outline-success"
+                    onclick='selectCp({{cp|tojson}})'>{{ cp.id + ' - ' +
+                    cp.destination
+                    + ' - ' + cp.type }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="cancelled-tab-pane" role="tabpanel"
+            aria-labelledby="cancelled-tab" tabindex="0">
+            <div class="btn-group-vertical d-flex" role="group"
+                aria-label="Vertical button group">
+                {% for cp in params.grouped_cp['cancelled'] %}
+                <button type="button" class="btn btn-outline-success"
+                    onclick='selectCp({{cp|tojson}})'>{{ cp.id + ' - ' +
+                    cp.destination
+                    + ' - ' + cp.type }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<hr>
+
+{% for status, items in params.grouped_cp.items() %}
+<div class="container mx-auto" id={{status}} name="statusContainer"
+    style="display: none;">
+    <div class="btn-group-vertical d-flex" role="group"
+        aria-label="Vertical button group">
+        {% for cp in items %}
+        <button type="button" class="btn btn-outline-success"
+            onclick='selectCp({{cp|tojson}})'>{{ cp.id + ' - ' + cp.destination
+            + ' - ' + cp.type }}</button>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+<hr>
+
+{% for cp in params.cp %}
+<div class="container mx-auto my-2" id={{cp.id}} name="cpContainer"
+    style="display: none;">
+    <ul class="list-group">
+        <li class="list-group-item active" aria-current="true">Numero CP:
+            {{cp.id}}</li>
+        <li class="list-group-item">Transportista: {{cp.transport}}</li>
+        <li class="list-group-item">Origen: {{cp.origin}}</li>
+        <li class="list-group-item">Destino: {{cp.destination}}</li>
+        <li class="list-group-item">KM: {{cp.km}}</li>
+        <li class="list-group-item">KG: {{cp.kg}}</li>
+        <li class="list-group-item">Tipo: {{cp.type}}</li>
+        <li class="list-group-item">Fecha: {{cp.date}}</li>
+    </ul>
+</div>
+{% endfor %}
+
+<script>
+    const params = {{ params| tojson }}
+    console.log(params)
+    
+    const cpContainers = document.getElementsByName('cpContainer')
+    const statusContainers = document.getElementsByName('statusContainer')
+
+    function hideAllCps(){
+        for (var i = 0; i < cpContainers.length; i++) {
+            cpContainers[i].style.display = "none"
+        }
+    }
+
+    function hideAllStatus(){
+        for (var i = 0; i < statusContainers.length; i++) {
+            statusContainers[i].style.display = "none"
+        }
+    }
+
+    function showSelectedCp(id){
+        const selectedCp = document.getElementById(id)
+        selectedCp.style.display = "block"
+    }
+
+    function showSelectedStatus(status){
+        const selectedStatus = document.getElementById(status)
+        selectedStatus.style.display = "block"
+    }
+
+    function selectCp(cp){
+        console.log('CP SELECTED: ', cp.id)
+        hideAllCps()
+        showSelectedCp(cp.id)
+    }
+
+    function selectStatus(status){
+        console.log('STATUS SELECTED: ', status)
+        hideAllCps()
+        hideAllStatus()
+        showSelectedStatus(status)
+    }
+
+</script>
+
+{% endblock %}

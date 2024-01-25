@@ -82,8 +82,17 @@ def cp():
     with open(f'{data_folder_path}/cp.json', 'r') as json_file:
         cp = json.load(json_file)
 
+    # Group data by status
+    grouped_cp = {}
+    for item in cp:
+        status = item["status"]
+        if status not in grouped_cp:
+            grouped_cp[status] = []
+        grouped_cp[status].append(item)
+
     params = {
         'cp': cp,
+        'grouped_cp': grouped_cp,
     }
     return render_template('cp.html', title='Cartas de Porte', params=params)
 
