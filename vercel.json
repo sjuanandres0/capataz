@@ -1,21 +1,8 @@
 {
-    "builds": [
-      {
-        "src": "./app.py",
-        "use": "@vercel/python"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "/"
-      }
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/api/index"
+        }
     ]
-    ,
-    "git": {
-      "deploymentEnabled": {
-        "master": true,
-        "main": false
-      }
-    }
 }
