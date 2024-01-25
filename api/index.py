@@ -40,7 +40,7 @@ def home():
 def login():
     if 'password' in session:
         if session['password'] in password_accepted:
-            return redirect('/cp')
+            return redirect('/')
 
     if request.method == 'POST':
         input_password = request.form.get('input_password')
@@ -50,7 +50,7 @@ def login():
             session.permanent = False
             session['password'] = input_password
             flash(['Successfully logged in!', 'success'])
-            return redirect('/cp')
+            return redirect('/')
         else:
             flash(['Incorrect password! Please try again.', 'danger'])
             return render_template('login.html', title='Login')
