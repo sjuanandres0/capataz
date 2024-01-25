@@ -1,0 +1,21 @@
+{
+    "builds": [
+      {
+        "src": "app/app.py",
+        "use": "@vercel/python"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "app/app.py"
+      }
+    ]
+    ,
+    "git": {
+      "deploymentEnabled": {
+        "master": true,
+        "main": false
+      }
+    }
+}
