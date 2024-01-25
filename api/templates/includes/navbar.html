@@ -1,8 +1,14 @@
 {% block navbar %}
+<style>
+    
+    .navbar-brand:hover i {
+        font-size: 130%; /* Increase the font size by 10% on hover */
+    }
+</style>
 
 <nav class="navbar navbar-expand-lg bg-success" data-bs-theme="dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">
+        <a class="navbar-brand icon-link-hover" href="/">
             <strong>Capataz</strong> <i class="fa-solid fa-seedling"
                 style="color: white;"></i>
             {% block title %}{{ title }}{% endblock %}
@@ -31,6 +37,10 @@
                 <li class="nav-item">
                     <a class="nav-link {{ active_class('dash') }}"
                         aria-current="page" href="/dash">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_class('settings') }}"
+                        aria-current="page" href="/settings">Configuracion</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ active_class('logout') }}"
