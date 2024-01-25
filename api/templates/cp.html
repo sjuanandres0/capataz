@@ -4,43 +4,108 @@
 
 {% block content %}
 
-<div style="padding: 2vh 2vw 10vh 2vw;">
+<style>
+    .nav-pills .nav-link {color: darkgreen;}
+    .nav-pills .nav-link.active {background-color:#198754};
+    .list-group-item {
+        background-color: white;
+    }
 
-    <div class="multi-color-border mb-2">
-        <div class="container">
-            <div class="row mb-2 align-items-center" style="text-align:center">
+    /* Target the active list-group-item and set its background color */
+    .list-group-item.active {
+        background-color: #198754;
+        color: white; /* Set text color to white for better visibility */
+        border-color: #198754;
+    }
 
-                {# CATEGORY 1 #}
-                <div class="col-sm-4 mb-2 mt-2">
-                    <div class="btn-group-vertical d-flex" role="group"
-                        aria-label="Group Category 1">
-                        {% for cp in params.cp %}
-                        <input type="radio" class="btn-check"
-                            name="vbtn-radio-cat1" id="vbtn-radio-{{cat1}}"
-                            autocomplete="off">
-                        <label class="btn btn-outline-success"
-                            for="vbtn-radio-{{cat1}}">{{cp.id}}</label>
-                        {% endfor %}
-                    </div>
-                </div>
+</style>
 
-            </div>
-        </div>
+<div class="container mx-auto">
+    <ul class="nav nav-pills nav-fill" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="closed-tab" data-bs-toggle="tab"
+                data-bs-target="#closed-tab-pane" type="button" role="tab"
+                aria-controls="closed-tab-pane"
+                aria-selected="true">Cerradas</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="active-tab" data-bs-toggle="tab"
+                data-bs-target="#active-tab-pane" type="button" role="tab"
+                aria-controls="active-tab-pane"
+                aria-selected="false">Activas</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cancelled-tab" data-bs-toggle="tab"
+                data-bs-target="#cancelled-tab-pane" type="button" role="tab"
+                aria-controls="cancelled-tab-pane"
+                aria-selected="false">Canceladas</button>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="closed-tab-pane"
+            role="tabpanel" aria-labelledby="closed-tab" tabindex="0">CP
+            CERRADAS</div>
+        <div class="tab-pane fade" id="active-tab-pane" role="tabpanel"
+            aria-labelledby="active-tab" tabindex="0">CP ACTIVAS</div>
+        <div class="tab-pane fade" id="cancelled-tab-pane" role="tabpanel"
+            aria-labelledby="cancelled-tab" tabindex="0">CP CANCELADAS</div>
     </div>
+</div>
 
-    <div class="multi-color-border mb-2" id="outputDiv" style="display:none">
-        <div class="container">
-            <p id="selected"></p>
-        </div>
-    </div>
+<hr>
 
-    <div class="multi-color-border mb-2" id="dataContainer"
-        style="display:none">
+<div class="container mx-auto">
+    <div class="btn-group-vertical d-flex" role="group"
+        aria-label="Vertical button group">
+        {% for cp in params.cp %}
+        <button type="button" class="btn btn-outline-success"
+            onclick='selectCp({{cp|tojson}})'>{{ cp.id + ' - ' +
+            cp.destination + ' - ' + cp.type }}</button>
+        {% endfor %}
     </div>
 
 </div>
 
+<hr>
+
+{% for cp in params.cp %}
+<div class="container mx-auto my-2" id={{cp.id}} name="individualCp"
+    style="display: none;">
+    <ul class="list-group">
+        <li class="list-group-item active" aria-current="true">{{cp.id}}</li>
+        <li class="list-group-item">Transportista: {{cp.transport}}</li>
+        <li class="list-group-item">Origen: {{cp.orgin}}</li>
+        <li class="list-group-item">Destino: {{cp.destination}}</li>
+        <li class="list-group-item">KM: {{cp.km}}</li>
+        <li class="list-group-item">KG: {{cp.kg}}</li>
+        <li class="list-group-item">Tipo: {{cp.type}}</li>
+        <li class="list-group-item">Fecha: {{cp.date}}</li>
+    </ul>
+</div>
+{% endfor %}
+
 <script>
+    const params = {{ params| tojson }}
+    console.log(params)
+    
+    const individualCps = document.getElementsByName('individualCp')
+
+    function hideAllCps(){
+        for (var i = 0; i < individualCps.length; i++) {
+            individualCps[i].style.display = "none"
+        }
+    }
+
+    function showSelectedCp(id){
+        const selectedCp = document.getElementById(id)
+        selectedCp.style.display = "block"
+    }
+
+    function selectCp(cp){
+        console.log('CP SELECTED: ', cp.id)
+        hideAllCps()
+        showSelectedCp(cp.id)
+    }
 
 </script>
 
