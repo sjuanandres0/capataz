@@ -1,0 +1,5 @@
+{% macro active_class(page) %}
+    {% if request.path == '/' + page %}
+        active
+    {% endif %}
+{% endmacro %}

@@ -1,0 +1,63 @@
+{% block footer %}
+<style>
+    .footer {
+        background-color: white;
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 3px;
+        border-top: 1px solid lightgray;
+    }
+
+    .footer-column {
+        display: flex;
+        align-items: center;
+        flex-grow: 0;
+        padding-left: 1vh;
+        padding-right: 1vh;
+    }
+
+    .footer-image {
+        height: 3vh;
+    }
+
+    .empty-column {
+        flex-grow: 4;
+    }
+</style>
+
+<footer class="footer">
+    <div class="footer-column">
+        <img src="{{ url_for('static', filename='seedling-solid.svg') }}"
+            class="footer-image" alt="Logo">
+    </div>
+    <div class="footer-column empty-column" style="justify-self: end">
+    </div>
+    <div class="footer-column" style="justify-self: end">
+        <a href="https://www.instagram.com/" target="_blank"><i
+                class="fa-brands fa-instagram"></i></a>
+    </div>
+    {% if session['password'] %}
+    <div class="footer-column" style="justify-self: end">
+        <a href="https://github.com/sjuanandres0/capataz" target="_blank"><i
+                class="fa-brands fa-github"></i></a>
+    </div>
+    <div class="footer-column" style="justify-self: end">
+        <a href="https://vercel.com/sjuanandres0/capataz" target="_blank"><i
+                class="fa-solid fa-file-waveform"></i></a>
+    </div>
+    <div class="footer-column" style="justify-self: end">
+        <a
+            href="https://cloud.mongodb.com/v2/65316f7551202e058a2cdaa3#/clusters"
+            target="_blank"><i class="fa-solid fa-database"></i></a>
+    </div>
+    <div class="footer-column" style="justify-self: end">
+        <a href='/logout'><button type="button" class="btn btn-link">Logout <i
+                    class="fa-solid fa-arrow-right-from-bracket"></i></button></a>
+    </div>
+    {% endif %}
+</footer>
+
+{% endblock %}
