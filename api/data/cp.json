@@ -58,5 +58,17 @@
     "type": "Trigo",
     "status": "active",
     "date": "2024-01-25 20:38:26"
+  },
+  {
+    "id": "559393010",
+    "ctg": "123489500",
+    "transport": "Roberto",
+    "origin": "Lucio V Lopez",
+    "destination": "Bunge",
+    "km": "180",
+    "kg": "33500",
+    "type": "Maiz",
+    "status": "active",
+    "date": "2024-01-25 20:49:26"
   }
 ]
