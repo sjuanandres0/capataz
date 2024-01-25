@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %} | {{ title }}{% endblock %}
+
+{% block content %}
+
+<div style="padding: 2vh 2vw 10vh 2vw;">
+
+    <div class="multi-color-border mb-2">
+        <div class="container">
+            <div class="row mb-2 align-items-center" style="text-align:center">
+
+                {# CATEGORY 1 #}
+                <div class="col-sm-4 mb-2 mt-2">
+                    <div class="btn-group-vertical d-flex" role="group"
+                        aria-label="Group Category 1">
+                        {% for cp in params.cp %}
+                        <input type="radio" class="btn-check"
+                            name="vbtn-radio-cat1" id="vbtn-radio-{{cat1}}"
+                            autocomplete="off">
+                        <label class="btn btn-outline-success"
+                            for="vbtn-radio-{{cat1}}">{{cp.id}}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="multi-color-border mb-2" id="outputDiv" style="display:none">
+        <div class="container">
+            <p id="selected"></p>
+        </div>
+    </div>
+
+    <div class="multi-color-border mb-2" id="dataContainer"
+        style="display:none">
+    </div>
+
+</div>
+
+<script>
+
+</script>
+
+{% endblock %}

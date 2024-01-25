@@ -1,0 +1,32 @@
+[
+    {
+        "id": "550707410",
+        "transport": "202301010",
+        "origin": "Nogoya",
+        "destination": "Bunge",
+        "km": 100,
+        "kg": 31250,
+        "type": "Soja",
+        "date": "2023-07-24 15:59:33"
+    },
+    {
+        "id": "550653910",
+        "transport": "202312331",
+        "origin": "Roldan",
+        "destination": "Cargill",
+        "km": 75,
+        "kg": 30250,
+        "type": "Trigo",
+        "date": "2023-07-28 15:59:33"
+    },
+    {
+        "id": "550632610",
+        "transport": "20993943",
+        "origin": "Tandil",
+        "destination": "Cargill",
+        "km": 250,
+        "kg": 29500,
+        "type": "Trigo",
+        "date": "2023-08-10 15:59:33"
+    }
+]

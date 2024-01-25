@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="row" style="text-align:center;margin-top:3vh">
+    <div class="col">
+        <h2>Bienvenido!</h2>
+        <p>Por favor, inicie sesion</p>
+    </div>
+</div>
+
+<div class="row justify-content-center"
+    style="text-align:center;margin-top:3vh">
+    <div class="col-8 col-lg-4">
+        <form action="/login" method="POST" id="formLogin">
+            <label for="recipient-name"
+                class="col-form-label">Contraseña</label>
+            <input type="password" name="input_password" class="form-control"
+                aria-describedby="passwordHelpBlock">
+        </form>
+        <br />
+        <button type="submit" class="btn btn-success" form="formLogin"
+            id="loginButton">Login</button>
+    </div>
+</div>
+
+{% endblock %}
