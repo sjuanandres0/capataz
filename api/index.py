@@ -47,13 +47,12 @@ def login():
         input_password = request.form.get('input_password')
         print(f'input_password: {input_password}')
         if input_password in password_accepted:
-            print(f'Session: {session}')
             session.permanent = False
             session['password'] = input_password
             flash(['Successfully logged in!', 'success'])
             return redirect('/')
         else:
-            flash(['Incorrect password! Please try again.', 'danger'])
+            flash(['Contrasena incorrecta. Intente nuevamente.', 'danger'])
             return render_template('login.html', title='Login')
     else:
         return render_template('login.html', title='Login')
@@ -63,7 +62,7 @@ def login():
 def logout():
     if 'password' in session:
         session.clear()
-    flash(['Successfully logged out!', 'primary'])
+    flash(['Successfully logged out!', 'success'])
     return redirect('/')
 
 
