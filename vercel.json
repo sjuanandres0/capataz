@@ -1,8 +1,9 @@
 {
-    "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": "/api/index"
-        }
-    ]
-}
+    "functions": {
+      "api/index.py": {
+        "runtime": "python3.8",
+        "includeFiles": ["api/**"]
+      }
+    },
+  }
+  
