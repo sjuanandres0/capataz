@@ -1,16 +1,10 @@
 {
     "builds": [
         {
-            "src": "api/index.py",
+            "src": "api/*.py",
             "use": "@vercel/python"
         }
     ],
-    "functions": {
-        "api/index.py": {
-            "runtime": "python3.8",
-            "includeFiles": "api/**"
-        }
-    },
     "routes": [
         {
             "src": "/(.*)",
