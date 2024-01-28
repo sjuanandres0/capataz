@@ -1,0 +1,14 @@
+[
+  {
+    "id": "1",
+    "nombre": "El Escondido",
+    "status": "active",
+    "fechaCreacion": "2023-07-24 15:59:33"
+  },
+  {
+    "id": "2",
+    "nombre": "Travasi",
+    "status": "inactive",
+    "fechaCreacion": "2019-07-24 15:59:33"
+  }
+]

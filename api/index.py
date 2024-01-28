@@ -3,17 +3,12 @@ import json
 from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
 from functools import wraps
 from datetime import datetime
+import db
 
 app = Flask(__name__)
 app.secret_key = "TukiTukiSecretKey"
 
 password_accepted = ['TukiTuki']
-
-data_folder_path = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), 'data')
-print(f'data_folder_path: {data_folder_path}')
-# with open(f'{data_folder_path}/products.json', 'r') as json_file:
-#     products = json.load(json_file)
 
 
 def login_is_required(view_func):
@@ -32,7 +27,6 @@ def home():
     if 'password' in session:
         if session['password'] in password_accepted:
             return render_template('home.html')
-            # return redirect('/cp')
     else:
         return redirect('/login')
 
@@ -76,22 +70,8 @@ def about():
     return 'About'
 
 
-def addNewCpToLocal(new_element):
-    try:
-        with open(f'{data_folder_path}/cp.json', 'r') as json_file:
-            data = json.load(json_file)
-        data.append(new_element)
-        with open(f'{data_folder_path}/cp.json', 'w') as json_file:
-            json.dump(data, json_file, indent=2)
-        flash(['Nueva CP cargada exitosamente!', 'success'])
-        return print("New element appended successfully.")
-    except:
-        flash(['Error al guardar Nueva CP!', 'danger'])
-        print('Error to save new CP')
-
-
 @login_is_required
-@app.route('/cp', methods=['GET', 'POST'])
+@app.route('/agricultura/cp', methods=['GET', 'POST'])
 def cp():
     if request.method == 'POST':
         newCp = {
@@ -104,14 +84,13 @@ def cp():
             "kg": request.form['kg'],
             "type": request.form['type'],
             "status": "active",
-            # "date": "2023-07-24 15:59:33"
             "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         print(f'NEW CP: {newCp}')
-        addNewCpToLocal(newCp)
+        # db.addNewCpToLocal(newCp)
+        db.create('cp',newCp)
 
-    with open(f'{data_folder_path}/cp.json', 'r') as json_file:
-        cp = json.load(json_file)
+    cp = db.read('cp')
 
     # Group data by status
     grouped_cp = {}
@@ -150,6 +129,24 @@ def dash():
 @app.route('/settings')
 def settings():
     return render_template('wip.html', title='Configuracion')
+
+
+@login_is_required
+@app.route('/agricultura')
+def agricultura():
+    return render_template('agricultura.html', title='Agricultura')
+
+
+@login_is_required
+@app.route('/configuracion')
+def configuracion():
+    return render_template('configuracion.html', title='Configuracion')
+
+
+@login_is_required
+@app.route('/configuracion/establecimiento')
+def establecimiento():
+    return render_template('establecimiento.html', title='Establecimiento')
 
 
 if __name__ == '__main__':

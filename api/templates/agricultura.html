@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="container mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active"
+                aria-current="page">Agricultura</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container mb-3">
+    <div class="row">
+        <div class="col-sm-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">CP</h5>
+                    <p class="card-text">Acceda al modulo de Cartas de
+                        Porte.</p>
+                    <a href="/agricultura/cp" class="btn btn-success">Ir a
+                        Cartas de Porte</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">LPG</h5>
+                    <p class="card-text">Acceda al modulo de Liquidaciones.</p>
+                    <a href="/agricultura/lpg" class="btn btn-success">Ir a
+                        Liquidaciones</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Contratos</h5>
+                    <p class="card-text">Acceda al modulo de Contratos.</p>
+                    <a href="/agricultura/contratos" class="btn btn-success">Ir
+                        a
+                        Contratos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

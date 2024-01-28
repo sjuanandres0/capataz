@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="container mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active"
+                aria-current="page">Configuracion</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container mb-3">
+    <div class="row">
+        <div class="col-sm-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Establecimientos</h5>
+                    <p class="card-text">Acceda al modulo de Establecimientos.</p>
+                    <a href="/configuracion/establecimiento" class="btn btn-secondary">Ir a Establecimientos</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Campos</h5>
+                    <p class="card-text">Acceda al modulo de Campos.</p>
+                    <a href="/configuracion/campo" class="btn btn-secondary">Ir a Campos</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Lotes</h5>
+                    <p class="card-text">Acceda al modulo de Lotes.</p>
+                    <a href="/configuracion/lote" class="btn btn-secondary">Ir a Lotes</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Transportistas</h5>
+                    <p class="card-text">Acceda al modulo de Transportistas.</p>
+                    <a href="/configuracion/transportista" class="btn btn-secondary">Ir a Transportistas</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Choferes</h5>
+                    <p class="card-text">Acceda al modulo de Choferes.</p>
+                    <a href="/configuracion/chofer" class="btn btn-secondary">Ir a Choferes</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Campanas</h5>
+                    <p class="card-text">Acceda al modulo de Campanas.</p>
+                    <a href="/configuracion/campana" class="btn btn-secondary">Ir a Campanas</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
