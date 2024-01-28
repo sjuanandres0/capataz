@@ -8,7 +8,7 @@ import json
 from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
 from functools import wraps
 from datetime import datetime
-from api.db import db
+from .db import db
 # import db
 
 

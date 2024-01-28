@@ -5,6 +5,12 @@
             "use": "@vercel/python"
         }
     ],
+    "functions": {
+        "api/index.py": {
+            "runtime": "python3.8",
+            "includeFiles": "api/**"
+        }
+    },
     "routes": [
         {
             "src": "/(.*)",
