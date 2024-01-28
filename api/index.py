@@ -3,7 +3,7 @@ import json
 from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
 from functools import wraps
 from datetime import datetime
-import db
+# import db
 
 app = Flask(__name__)
 app.secret_key = "TukiTukiSecretKey"
