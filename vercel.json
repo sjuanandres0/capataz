@@ -1,9 +1,10 @@
 {
     "functions": {
-      "api/index.py": {
-        "runtime": "python3.8",
-        "includeFiles": ["api/**"]
-      }
-    },
-  }
-  
+        "api/index.py": {
+            "runtime": "python3.8",
+            "includeFiles": [
+                "api/**"
+            ]
+        }
+    }
+}
