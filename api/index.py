@@ -4,7 +4,7 @@ from flask import Flask, render_template, session, redirect, request, abort, fla
 from functools import wraps
 from datetime import datetime
 # from api.db import db
-import db
+# import db
 
 
 app = Flask(__name__)
