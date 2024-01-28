@@ -8,6 +8,8 @@ For 2 databases:
 import os
 import json
 
+print('READING tools/db.py')
+
 data_folder_path = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'data')
 print(f'data_folder_path: {data_folder_path}')
