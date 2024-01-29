@@ -1,14 +1,11 @@
 import sys
-print(sys.path)
-
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import json
 from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
 from functools import wraps
 from datetime import datetime
-# from .db import db
 import db
 
 
@@ -95,7 +92,7 @@ def cp():
         }
         print(f'NEW CP: {newCp}')
         # db.addNewCpToLocal(newCp)
-        db.create('cp',newCp)
+        db.create('cp', newCp)
 
     cp = db.read('cp')
 
@@ -112,6 +109,12 @@ def cp():
         'grouped_cp': grouped_cp,
     }
     return render_template('cp.html', title='Cartas de Porte', params=params)
+
+
+@login_is_required
+@app.route('/wip')
+def wip():
+    return render_template('wip.html', title='WIP')
 
 
 @login_is_required
@@ -151,9 +154,27 @@ def configuracion():
 
 
 @login_is_required
-@app.route('/configuracion/establecimiento')
+@app.route('/configuracion/establecimiento', methods=['GET', 'POST'])
 def establecimiento():
-    return render_template('establecimiento.html', title='Establecimiento')
+    if request.method == 'POST':
+        action = request.form['action']
+        print(f'action = {action}')
+        e = {
+            "id": request.form['id'],
+            "name": request.form['name'],
+            "status": request.form['status'],
+            "lastUpdateDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        if action == 'new':
+            e['creationDate'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            db.create('establecimiento', e)
+        else:
+            db.update('establecimiento', e)
+
+    params = {
+        'establecimiento': db.read('establecimiento')
+    }
+    return render_template('establecimiento.html', title='Establecimiento', params=params)
 
 
 if __name__ == '__main__':

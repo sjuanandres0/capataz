@@ -8,8 +8,6 @@ For 2 databases:
 import os
 import json
 
-print('READING db.py')
-
 data_folder_path = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'data')
 print(f'data_folder_path: {data_folder_path}')
@@ -30,6 +28,27 @@ def create(collection, element):
         return 'success'
     except:
         return 'fail'
+
+
+def update(collection, element):
+    try:
+        with open(f'{data_folder_path}/{collection}.json', 'r') as json_file:
+            data = json.load(json_file)
+
+        index_to_update = next((index for index, item in enumerate(
+            data) if item.get('id') == element.get('id')), None)
+
+        if index_to_update is not None:
+            data[index_to_update].update({k: v for k, v in element.items() if k != 'id'})
+
+            with open(f'{data_folder_path}/{collection}.json', 'w') as json_file:
+                json.dump(data, json_file, indent=2)
+
+            return 'success'
+        else:
+            return 'fail - ID not found'
+    except Exception as e:
+        return f'fail - {str(e)}'
 
 
 # def addNewCpToLocal(new_element):

@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}{{ title }}{% endblock %}
+{% block title %} {{ title }}{% endblock %}
 
 {% block content %}
 
@@ -7,15 +7,255 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item"><a href="/configuracion">Configuracion</a></li>
+            <li class="breadcrumb-item"><a
+                    href="/configuracion">Configuracion</a></li>
             <li class="breadcrumb-item active"
                 aria-current="page">Establecimiento</li>
         </ol>
     </nav>
 </div>
 
-<div class="container">
-    ASD
+<hr>
+
+<div class="container mx-auto">
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <button class="btn btn-outline-success btn-sm" type="button"
+            data-bs-toggle="modal" data-bs-target="#newModal">Nuevo</button>
+    </div>
 </div>
+
+<!-- newModal -->
+<div class="modal fade" id="newModal" tabindex="-1"
+    aria-labelledby="newModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="newModalLabel">Nuevo
+                    {{title}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                <input type="hidden" name="action" value="new">
+                <div class="modal-body">
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="id"
+                            id="id" readonly>
+                        <label for="floatingInput">ID</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="name"
+                            placeholder="La Josefina">
+                        <label for="floatingInput">Nombre</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="status"
+                            value="active">
+                        <label for="floatingInput">Status</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit"
+                        class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<div class="container">
+    <div class="row">
+        {% for e in params.establecimiento %}
+        <div class="col-sm-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{e.name}}</h5>
+                    <!-- <p class="card-text">Ver establecimiento en detalle.</p> -->
+                    <!-- <button class="btn btn-primary">Editar</button> -->
+                    {% if e.status == 'active' %}
+                    <!-- <button class="btn btn-danger">Desactivar</button> -->
+                    <button class="btn btn-outline-primary btn-sm" type="button"
+                        data-bs-toggle="modal" data-bs-target="#updateModal"
+                        onclick='update({{e|tojson|safe}})'>Editar</button>
+                    <button class="btn btn-outline-danger btn-sm" type="button"
+                        data-bs-toggle="modal" data-bs-target="#deactivateModal"
+                        onclick='deactivate({{e|tojson|safe}})'>Desactivar</button>
+                    {% else %}
+                    <!-- <button class="btn btn-success">Activar</button> -->
+                    <button class="btn btn-outline-success btn-sm" type="button"
+                        data-bs-toggle="modal" data-bs-target="#activateModal"
+                        onclick='activate({{e|tojson|safe}})'>Activar</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- updateModal -->
+<div class="modal fade" id="updateModal" tabindex="-1"
+    aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="updateModalLabel">Editar
+                    {{title}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                <input type="hidden" name="action" value="update">
+                <div class="modal-body">
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="id"
+                            id="updateId" readonly>
+                        <label for="floatingInput">ID</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="name"
+                            id="updateName">
+                        <label for="floatingInput">Nombre</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <select class="form-select" name="status"
+                            aria-label="Floating label select example"
+                            aria-readonly="true" id="updateStatus" readonly>
+                            <option value="active">Activo</option>
+                            <option value="inactive">Desactivado</option>
+                        </select>
+                        <label for="floatingSelect">Status</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit"
+                        class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- deactivateModal -->
+<div class="modal fade" id="deactivateModal" tabindex="-1"
+    aria-labelledby="deactivateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5"
+                    id="deactivateModalLabel">Desactivar
+                    {{title}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                <input type="hidden" name="action" value="deactivate">
+                <div class="modal-body">
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="id"
+                            id="deactivateId" readonly>
+                        <label for="floatingInput">ID</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="name"
+                            id="deactivateName" readonly>
+                        <label for="floatingInput">Nombre</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="status"
+                            id="deactivateStatus" readonly
+                            value="active">
+                        <label for="floatingInput">Status</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit"
+                        class="btn btn-danger">Deactivar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- activateModal -->
+<div class="modal fade" id="activateModal" tabindex="-1"
+    aria-labelledby="activateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5"
+                    id="activateModalLabel">Activar
+                    {{title}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                <input type="hidden" name="action" value="activate">
+                <div class="modal-body">
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="id"
+                            id="activateId" readonly>
+                        <label for="floatingInput">ID</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="name"
+                            id="activateName" readonly>
+                        <label for="floatingInput">Nombre</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="status"
+                            id="activateStatus" readonly
+                            value="active">
+                        <label for="floatingInput">Status</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit"
+                        class="btn btn-success">Activar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<script>
+    const params = {{ params|tojson }}
+    console.log(params)
+
+    const arrayOfObjects = params.establecimiento;
+    const maxId = arrayOfObjects.reduce((max, obj) => (obj.id > max ? obj.id : max), -Infinity);
+    document.getElementById('id').value = parseInt(maxId)+1;
+
+    function update(e){
+        document.getElementById('updateId').value = e.id
+        document.getElementById('updateName').value = e.name
+        document.getElementById('updateStatus').value ='active'
+    }
+
+    function deactivate(e){
+        document.getElementById('deactivateId').value = e.id
+        document.getElementById('deactivateName').value = e.name
+        document.getElementById('deactivateStatus').value = 'inactive'
+    }
+    
+    function activate(e){
+        document.getElementById('activateId').value = e.id
+        document.getElementById('activateName').value = e.name
+        document.getElementById('activateStatus').value = 'active'
+    }
+
+</script>
 
 {% endblock %}

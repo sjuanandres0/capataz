@@ -1,14 +1,37 @@
 [
   {
     "id": "1",
-    "nombre": "El Escondido",
+    "name": "El Escondido",
     "status": "active",
-    "fechaCreacion": "2023-07-24 15:59:33"
+    "lastUpdateDate": "2023-07-24 15:59:33",
+    "creationDate": "2023-07-24 15:59:33"
   },
   {
     "id": "2",
-    "nombre": "Travasi",
+    "name": "Travasi",
+    "status": "active",
+    "lastUpdateDate": "2024-01-29 11:51:10",
+    "creationDate": "2019-07-24 15:59:33"
+  },
+  {
+    "id": "3",
+    "name": "Chichilo Tiger",
     "status": "inactive",
-    "fechaCreacion": "2019-07-24 15:59:33"
+    "lastUpdateDate": "2024-01-29 11:48:47",
+    "creationDate": "2010-07-24 15:30:00"
+  },
+  {
+    "id": "4",
+    "name": "La Josefina",
+    "status": "active",
+    "lastUpdateDate": "2024-01-29 11:45:17",
+    "creationDate": "2024-01-29 10:25:46"
+  },
+  {
+    "id": "5",
+    "name": "Playadito",
+    "status": "active",
+    "lastUpdateDate": "2023-07-24 15:59:33",
+    "creationDate": "2024-01-29 10:27:27"
   }
 ]
