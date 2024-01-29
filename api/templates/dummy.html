@@ -1,0 +1,10 @@
+<p>
+    PARAMS: {{params}}
+</p>
+{% for param in params %}
+<p>ID: {{ param.id }}</p>
+<p>Param1: {{ param.name }}</p>
+<p>Param2: {{ param.status }}</p>
+<p>creationDate: {{ param.creationDate }}</p>
+<p>lastUpdateDate: {{ param.lastUpdateDate }}</p>
+{% endfor %}

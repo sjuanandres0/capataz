@@ -1,21 +1,61 @@
-import sys
-print(sys.path)
-
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-
-import json
-from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
-from functools import wraps
+import sys
 from datetime import datetime
-import db
+from functools import wraps
+from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
+import json
 
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 app = Flask(__name__)
 app.secret_key = "TukiTukiSecretKey"
-
 password_accepted = ['TukiTuki']
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///capataz.db'
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+db = SQLAlchemy(model_class=Base)
+
+db.init_app(app)
+
+# import db
+print(sys.path)
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+
+class Establishment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    status = db.Column(db.String(50), nullable=False)
+    lastUpdateDate = db.Column(db.DateTime, nullable=False)
+    creationDate = db.Column(db.DateTime, nullable=False)
+
+    def __repr__(self):
+        return f"Establishment('{self.name}', '{self.status}')"
+
+
+with app.app_context():
+    # db.drop_all()
+    db.create_all()
+    # new_establishment = Establishment(
+    #     name="El Escondido",
+    #     status="Active",
+    #     lastUpdateDate=datetime.now(),
+    #     creationDate=datetime.now()
+    # )
+    # db.session.add(new_establishment)
+    # db.session.commit()
+    # users = db.session.execute(db.select(User)).scalars()
+
+
+# data_folder_path = os.path.join(
+#     os.path.dirname(os.path.abspath(__file__)), 'data')
+# print(f'data_folder_path: {data_folder_path}')
+# dbConnection = db.create_connection(f'{data_folder_path}/db.sqlite')
 
 
 def login_is_required(view_func):
@@ -157,8 +197,8 @@ def configuracion():
 
 
 @login_is_required
-@app.route('/configuracion/establecimiento', methods=['GET', 'POST'])
-def establecimiento():
+@app.route('/configuracion/establecimiento_json', methods=['GET', 'POST'])
+def establecimiento_json():
     if request.method == 'POST':
         action = request.form['action']
         print(f'action = {action}')
@@ -178,6 +218,35 @@ def establecimiento():
         'establecimiento': db.read('establecimiento')
     }
     return render_template('establecimiento.html', title='Establecimiento', params=params)
+
+
+# @app.route('/test')
+# def test():
+#     establishments = Establishment.query.all()
+#     return render_template("blank.html", params=establishments)
+
+
+@login_is_required
+@app.route('/configuracion/establecimiento', methods=['GET', 'POST'])
+def establecimiento():
+    if request.method == 'POST':
+        action = request.form['action']
+        print(f'action = {action}')
+        e = {
+            "id": request.form['id'],
+            "name": request.form['name'],
+            "status": request.form['status'],
+            "lastUpdateDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        if action == 'new':
+            e['creationDate'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            db.create('establecimiento', e)
+        else:
+            db.update('establecimiento', e)
+
+    establishments = Establishment.query.all()
+    return render_template('dummy.html', title='Establecimiento', params=establishments)
+    # return render_template('establecimiento.html', title='Establecimiento', params=params)
 
 
 if __name__ == '__main__':
