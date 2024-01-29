@@ -1,6 +1,9 @@
 import sys
+print(sys.path)
+
 import os
-# sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 
 import json
 from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
