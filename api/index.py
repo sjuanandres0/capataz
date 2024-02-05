@@ -6,6 +6,9 @@ from datetime import datetime
 from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
 from functools import wraps
 
+from db import client
+
+
 app = Flask(__name__)
 app.secret_key = "TukiTukiSecretKey"
 password_accepted = ['TukiTuki']
@@ -46,6 +49,15 @@ def test():
     res = cur.execute("SELECT * FROM establishment ORDER BY id DESC")
     results = res.fetchall()
     return jsonify(results)
+
+@app.route('/testMongo')
+def testMongo():
+    collection = client.dummyDatabase.dummyCollection
+    result = collection.find_one()
+    print(result)
+    # return jsonify(result)
+    return json.dumps(result, default=str)
+
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -197,7 +209,7 @@ def establecimiento():
         elif action == 'activate':
             query = f"UPDATE establishment SET status='{status}', lastUpdateDate='{lastUpdateDate}' WHERE id='{id}'"
         else:
-           flash(['Error - condition undefined.', 'danger'])
+            flash(['Error - condition undefined.', 'danger'])
 
         print(f'query: {query}')
         cur.execute(query)
