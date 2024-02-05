@@ -34,14 +34,17 @@
         <a href="/">
         <i class="fa-solid fa-seedling" style="color: #198754;"></i></a>
     </div>
-    <div class="footer-column empty-column" style="justify-self: end">
+    <div class="footer-column">
+        {{session['name']}}
     </div>
 
+    <div class="footer-column empty-column" style="justify-self: end">
+    </div>
     <div class="footer-column" style="justify-self: end">
         <a href="https://www.instagram.com/" target="_blank"><i
                 class="fa-brands fa-instagram" style="color:#198754"></i></a>
     </div>
-    {% if session['password'] %}
+    {% if session['name'] %}
     <div class="footer-column" style="justify-self: end">
         <a href="https://github.com/sjuanandres0/capataz" target="_blank"><i
                 class="fa-brands fa-github" style="color:#198754"></i></a>

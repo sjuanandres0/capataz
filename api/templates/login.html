@@ -14,14 +14,19 @@
     style="text-align:center;margin-top:3vh">
     <div class="col-8 col-lg-4">
         <form action="/login" method="POST" id="formLogin">
-            <label for="recipient-name"
-                class="col-form-label">Contraseña</label>
-            <input type="password" name="input_password" class="form-control"
-                aria-describedby="passwordHelpBlock">
+            <div class="form-floating mb-1">
+                <input type="text" class="form-control" name="name" id="name" required>
+                <label for="floatingInput">Nombre</label>
+            </div>
+            <div class="form-floating mb-1">
+                <input type="password" class="form-control" name="password"
+                    id="password" required>
+                <label for="floatingInput">Contraseña</label>
+            </div>
+            <br />
+            <button type="submit" class="btn btn-success" form="formLogin"
+                id="loginButton">Login</button>
         </form>
-        <br />
-        <button type="submit" class="btn btn-success" form="formLogin"
-            id="loginButton">Login</button>
     </div>
 </div>
 
