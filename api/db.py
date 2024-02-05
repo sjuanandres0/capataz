@@ -11,11 +11,10 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 import os
-mongoUri = os.getenv("mongoUri")
-print(f'mongoUri:{mongoUri}')
+# mongoUri = os.getenv("mongoUri")
+mongoUri = os.environ.get("mongoUri")
 if mongoUri is None:
     from credentials import mongoUri
-    print(f'mongoUri is None:{mongoUri}')
 
 client = MongoClient(mongoUri, server_api=ServerApi('1'))
 # collection = client.dummyDatabase.dummyCollection

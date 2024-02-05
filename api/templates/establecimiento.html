@@ -69,11 +69,14 @@
 
 <div class="container">
     <div class="row">
-        {% for e in params.establecimiento %}
+        {% for e in params.establishment %}
         <div class="col-sm-6 mb-3">
             <div class="card text-center">
                 <div class="card-body">
                     <h5 class="card-title">{{e.name}}</h5>
+                    <p class="card-body">Creation Date:
+                        {{e.creationDate}}<br>Last Update Date:
+                        {{e.lastUpdateDate}}</p>
                     <!-- <p class="card-text">Ver establecimiento en detalle.</p> -->
                     <!-- <button class="btn btn-primary">Editar</button> -->
                     {% if e.status == 'active' %}
@@ -234,7 +237,7 @@
     const params = {{ params|tojson }}
     console.log(params)
 
-    const arrayOfObjects = params.establecimiento;
+    const arrayOfObjects = params.establishment;
     const maxId = arrayOfObjects.reduce((max, obj) => (obj.id > max ? obj.id : max), -Infinity);
     document.getElementById('id').value = parseInt(maxId)+1;
 

@@ -1,4 +1,4 @@
-import sqlite3
+from db import client
 import os
 import sys
 import json
@@ -6,10 +6,8 @@ from datetime import datetime
 from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
 from functools import wraps
 
-print(sys.path)
+# print(sys.path)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from db import client
 
 
 app = Flask(__name__)
@@ -18,20 +16,6 @@ password_accepted = ['TukiTuki']
 # app.config["SESSION_PERMANENT"] = False
 # app.config["SESSION_TYPE"] = "filesystem"
 # Session(app)
-
-
-def dict_factory(cursor, row):
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
-
-
-con = sqlite3.connect('instance/capataz.db', check_same_thread=False)
-con.row_factory = dict_factory
-cur = con.cursor()
-
-
 
 
 def login_is_required(view_func):
@@ -44,21 +28,12 @@ def login_is_required(view_func):
     return decorated_func
 
 
-@login_is_required
 @app.route('/test')
 def test():
-    res = cur.execute("SELECT * FROM establishment ORDER BY id DESC")
-    results = res.fetchall()
-    return jsonify(results)
-
-@app.route('/testMongo')
-def testMongo():
     collection = client.dummyDatabase.dummyCollection
     result = collection.find_one()
     print(result)
-    # return jsonify(result)
     return json.dumps(result, default=str)
-
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -200,29 +175,41 @@ def establecimiento():
         name = request.form['name']
         status = request.form['status']
         lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        e = {
+            'id': id,
+            'name': name,
+            'status': status,
+            'lastUpdateDate': lastUpdateDate
+        }
+        myquery = {"id": f'{id}'}
         if action == 'new':
             creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            query = f"INSERT INTO establishment VALUES ({id},'{name}','{status}','{lastUpdateDate}','{creationDate}')"
+            e['creationDate'] = creationDate
+            client.capataz.establishment.insert_one(e)
         elif action == 'update':
-            query = f"UPDATE establishment SET name='{name}', lastUpdateDate='{lastUpdateDate}' WHERE id='{id}'"
+            newvalue = {"$set": {"name": f'{name}',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            client.capataz.establishment.update_one(myquery, newvalue)
         elif action == 'deactivate':
-            query = f"UPDATE establishment SET status='{status}', lastUpdateDate='{lastUpdateDate}' WHERE id='{id}'"
+            newvalue = {"$set": {"status": 'inactive',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            client.capataz.establishment.update_one(myquery, newvalue)
         elif action == 'activate':
-            query = f"UPDATE establishment SET status='{status}', lastUpdateDate='{lastUpdateDate}' WHERE id='{id}'"
+            newvalue = {"$set": {"status": 'active',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            client.capataz.establishment.update_one(myquery, newvalue)
         else:
             flash(['Error - condition undefined.', 'danger'])
 
-        print(f'query: {query}')
-        cur.execute(query)
-        con.commit()
-        flash(['Success.', 'success'])
+        flash(['Success!', 'success'])
 
-    res = cur.execute("SELECT * FROM establishment ORDER BY id DESC")
-    results = res.fetchall()
+    collection = client.capataz.establishment
+    result = list(collection.find({}, {'_id': 0}))
+    print(f'result: {result}')
     params = {
-        'establecimiento': results
+        'establishment': result
     }
-    return render_template('establecimiento.html', title='Establecimientos', params=params)
+    return render_template('establecimiento.html', title='Establecimiento', params=params)
 
 
 if __name__ == '__main__':
