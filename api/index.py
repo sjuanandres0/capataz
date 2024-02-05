@@ -13,10 +13,13 @@ from db import client
 
 app = Flask(__name__)
 app.secret_key = "TukiTukiSecretKey"
-password_accepted = os.environ.get("password_accepted")
-if password_accepted is None:
-    from credentials import password_accepted
-password_accepted = [password_accepted]
+
+def getPasswordAccepted():
+    password_accepted = os.environ.get("password_accepted")
+    if password_accepted is None:
+        from credentials import password_accepted
+    password_accepted = [password_accepted]
+    return password_accepted
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -54,7 +57,7 @@ def login():
         return redirect('/')
     if request.method == 'POST':
         input_password = request.form.get('password')
-        if input_password in password_accepted:
+        if input_password in getPasswordAccepted():
             flash(['Successfully logged in!', 'success'])
             session['name'] = request.form.get('name')
             return redirect('/')
