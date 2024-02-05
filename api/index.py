@@ -1,20 +1,30 @@
 import sqlite3
 import os
 import sys
-from datetime import datetime
-from functools import wraps
-from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
 import json
+from datetime import datetime
+from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = "TukiTukiSecretKey"
 password_accepted = ['TukiTuki']
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
+# app.config["SESSION_PERMANENT"] = False
+# app.config["SESSION_TYPE"] = "filesystem"
 # Session(app)
 
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
 con = sqlite3.connect('instance/capataz.db', check_same_thread=False)
+con.row_factory = dict_factory
 cur = con.cursor()
+
 
 print(sys.path)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -23,20 +33,18 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 def login_is_required(view_func):
     @wraps(view_func)
     def decorated_func(*args, **kwargs):
-        if 'password' not in session:
+        if 'password' not in session or session['password'] not in password_accepted:
             return abort(401)  # Authorization required
         else:
             return view_func(*args, **kwargs)
     return decorated_func
 
 
+@login_is_required
 @app.route('/test')
 def test():
-    res = cur.execute("SELECT * FROM establishment")
-    results = []
-    for r in res:
-        print(r)
-        results.append(r)
+    res = cur.execute("SELECT * FROM establishment ORDER BY id DESC")
+    results = res.fetchall()
     return jsonify(results)
 
 
@@ -168,51 +176,40 @@ def configuracion():
     return render_template('configuracion.html', title='Configuracion')
 
 
-# @login_is_required
-# @app.route('/configuracion/establecimiento_json', methods=['GET', 'POST'])
-# def establecimiento_json():
-#     if request.method == 'POST':
-#         action = request.form['action']
-#         print(f'action = {action}')
-#         e = {
-#             "id": request.form['id'],
-#             "name": request.form['name'],
-#             "status": request.form['status'],
-#             "lastUpdateDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-#         }
-#         if action == 'new':
-#             e['creationDate'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-#             db.create('establecimiento', e)
-#         else:
-#             db.update('establecimiento', e)
+@login_is_required
+@app.route('/configuracion/establecimiento', methods=['GET', 'POST'])
+def establecimiento():
+    if request.method == 'POST':
+        action = request.form['action']
+        print(f'action = {action}')
+        # TODO: Sanitize user input - particularly for query params / avoid taking id from frontend
+        id = request.form['id']
+        name = request.form['name']
+        status = request.form['status']
+        lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if action == 'new':
+            creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            query = f"INSERT INTO establishment VALUES ({id},'{name}','{status}','{lastUpdateDate}','{creationDate}')"
+        elif action == 'update':
+            query = f"UPDATE establishment SET name='{name}', lastUpdateDate='{lastUpdateDate}' WHERE id='{id}'"
+        elif action == 'deactivate':
+            query = f"UPDATE establishment SET status='{status}', lastUpdateDate='{lastUpdateDate}' WHERE id='{id}'"
+        elif action == 'activate':
+            query = f"UPDATE establishment SET status='{status}', lastUpdateDate='{lastUpdateDate}' WHERE id='{id}'"
+        else:
+           flash(['Error - condition undefined.', 'danger'])
 
-#     params = {
-#         'establecimiento': db.read('establecimiento')
-#     }
-#     return render_template('establecimiento.html', title='Establecimiento', params=params)
+        print(f'query: {query}')
+        cur.execute(query)
+        con.commit()
+        flash(['Success.', 'success'])
 
-
-# @login_is_required
-# @app.route('/configuracion/establecimiento', methods=['GET', 'POST'])
-# def establecimiento():
-#     if request.method == 'POST':
-#         action = request.form['action']
-#         print(f'action = {action}')
-#         e = {
-#             "id": request.form['id'],
-#             "name": request.form['name'],
-#             "status": request.form['status'],
-#             "lastUpdateDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-#         }
-#         if action == 'new':
-#             e['creationDate'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-#             db.create('establecimiento', e)
-#         else:
-#             db.update('establecimiento', e)
-
-#     establishments = Establishment.query.all()
-#     return render_template('dummy.html', title='Establecimiento', params=establishments)
-#     # return render_template('establecimiento.html', title='Establecimiento', params=params)
+    res = cur.execute("SELECT * FROM establishment ORDER BY id DESC")
+    results = res.fetchall()
+    params = {
+        'establecimiento': results
+    }
+    return render_template('establecimiento.html', title='Establecimientos', params=params)
 
 
 if __name__ == '__main__':
