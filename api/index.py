@@ -6,6 +6,9 @@ from datetime import datetime
 from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
 from functools import wraps
 
+print(sys.path)
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from db import client
 
 
@@ -29,8 +32,6 @@ con.row_factory = dict_factory
 cur = con.cursor()
 
 
-print(sys.path)
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
 def login_is_required(view_func):
