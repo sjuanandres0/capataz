@@ -20,7 +20,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                {% if session['name'] %}
+                {% if session['username'] %}
                 <li class="nav-item">
                     <a class="nav-link {{ active_class('cp') }}"
                         aria-current="page" href="/agricultura">Agricultura</a>
@@ -49,6 +49,10 @@
                 <li class="nav-item">
                     <a class="nav-link {{ active_class('login') }}"
                         aria-current="page" href="/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_class('register') }}"
+                        aria-current="page" href="/register">Register</a>
                 </li>
                 {% endif %}
             </ul>

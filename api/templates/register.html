@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block title %} | {{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="row" style="text-align:center;margin-top:3vh">
+    <div class="col">
+        <h2>Bienvenido!</h2>
+        <p>Por favor, registrese.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center"
+    style="text-align:center;margin-top:3vh">
+    <div class="col-8 col-lg-4">
+        <form action="/register" method="POST" id="formRegister">
+            <div class="form-floating mb-1">
+                <input type="text" class="form-control" name="username"
+                    id="username" autofocus required>
+                <label for="floatingInput">Usuario</label>
+            </div>
+            <div class="form-floating mb-1">
+                <input type="email" class="form-control" name="email" id="email"
+                    required>
+                <label for="floatingInput">Email</label>
+            </div>
+            <div class="form-floating mb-1">
+                <input type="text" class="form-control" name="name" id="name"
+                    required>
+                <label for="floatingInput">Nombre</label>
+            </div>
+            <div class="form-floating mb-1">
+                <input type="password" class="form-control" name="password"
+                    id="password" required>
+                <label for="floatingInput">Contraseña</label>
+            </div>
+            <br />
+            <button type="submit" class="btn btn-success" form="formRegister"
+                id="registerButton">Registrar</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

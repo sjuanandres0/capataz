@@ -3,7 +3,7 @@ import sys
 import json
 from datetime import datetime
 from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
-# from flask_session import Session
+from bcrypt import hashpw, checkpw, gensalt
 from functools import wraps
 
 # print(sys.path)
@@ -14,59 +14,79 @@ from db import client
 app = Flask(__name__)
 app.secret_key = "TukiTukiSecretKey"
 
-def getPasswordAccepted():
-    password_accepted = os.environ.get("password_accepted")
-    if password_accepted is None:
-        from credentials import password_accepted
-    password_accepted = [password_accepted]
-    return password_accepted
-    # collection = client.capataz.credentials
-    # cred = collection.find_one()
-
-
-# app.config["SESSION_PERMANENT"] = False
-# app.config["SESSION_TYPE"] = "filesystem"
-# Session(app)
+# def getPasswordAccepted():
+#     password_accepted = os.environ.get("password_accepted")
+#     if password_accepted is None:
+#         from credentials import password_accepted
+#     password_accepted = [password_accepted]
+#     return password_accepted
 
 
 def login_is_required(view_func):
     @wraps(view_func)
     def decorated_func(*args, **kwargs):
-        if not session.get('name'):
+        if not session.get('username'):
             return abort(401)  # Authorization required
         else:
             return view_func(*args, **kwargs)
     return decorated_func
 
 
-# @app.route('/test')
-# def test():
-#     collection = client.dummyDatabase.dummyCollection
-#     result = collection.find_one()
-#     print(result)
-#     return json.dumps(result, default=str)
-
-
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    if not session.get('name'):
+    if not session.get('username'):
         return redirect('/login')
     return render_template('home.html')
 
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    if session.get('username'):
+        return redirect('/')
+    if request.method == 'POST':
+        input_username = request.form.get('username')
+        input_password = request.form.get('password')
+        user = client.capataz.user.find_one({'username': input_username})
+        if user is None:
+            flash(['Username not existing! Register first.', 'danger'])
+            return redirect('/register') 
+        else:
+            if user and checkpw(input_password.encode('utf-8'), user['password']):
+                flash(['Successfully logged in!', 'success'])
+                session['username'] = input_username
+                session['name'] = user['name']
+                return redirect('/')
+            else:
+                flash(['Incorrect password!', 'danger'])
+    return render_template('login.html', title='Login')
+
+
+@app.route('/register', methods=["GET", "POST"])
+def register():
     if session.get('name'):
         return redirect('/')
     if request.method == 'POST':
+        input_username = request.form.get('username')
+        input_name = request.form.get('name')
+        input_email = request.form.get('email')
         input_password = request.form.get('password')
-        if input_password in getPasswordAccepted():
-            flash(['Successfully logged in!', 'success'])
-            session['name'] = request.form.get('name')
-            return redirect('/')
-        else:
-            flash(['Incorrect password!', 'danger'])
-    return render_template('login.html', title='Login')
+        hashed_password = hashpw(input_password.encode('utf-8'), gensalt())
+        u = {
+            'username':input_username,
+            'name':input_name,
+            'email':input_email,
+            'password':hashed_password
+        }
+        if client.capataz.user.find_one({'username': input_username}) is not None:
+            flash(['Username already registered. Try with a different or Login!','warning'])
+            return redirect('/register')
+        if client.capataz.user.find_one({'email': input_email}) is not None:
+            flash(['Email already registered. Try with a different or Login!','warning'])
+            return redirect('/register')
+        client.capataz.user.insert_one(u)
+        flash(['Successfully registered!', 'success'])
+        return redirect('/login')
+    return render_template('register.html', title='Register')
 
 
 @app.route('/logout')
@@ -206,7 +226,6 @@ def establecimiento():
 
     collection = client.capataz.establishment
     result = list(collection.find({}, {'_id': 0}))
-    print(f'result: {result}')
     params = {
         'establishment': result
     }
