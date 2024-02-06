@@ -1,4 +1,3 @@
-from db import client
 import os
 import sys
 import json
@@ -9,6 +8,7 @@ from functools import wraps
 
 # print(sys.path)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from db import client
 
 
 app = Flask(__name__)
