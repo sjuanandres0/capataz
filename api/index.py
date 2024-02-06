@@ -1,3 +1,4 @@
+from db import client
 import os
 import sys
 import json
@@ -9,7 +10,6 @@ from functools import wraps
 # print(sys.path)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from db import client
 
 app = Flask(__name__)
 app.secret_key = "TukiTukiSecretKey"
@@ -49,7 +49,7 @@ def login():
         user = client.capataz.user.find_one({'username': input_username})
         if user is None:
             flash(['Username not existing! Register first.', 'danger'])
-            return redirect('/register') 
+            return redirect('/register')
         else:
             if user and checkpw(input_password.encode('utf-8'), user['password']):
                 flash(['Successfully logged in!', 'success'])
@@ -72,16 +72,18 @@ def register():
         input_password = request.form.get('password')
         hashed_password = hashpw(input_password.encode('utf-8'), gensalt())
         u = {
-            'username':input_username,
-            'name':input_name,
-            'email':input_email,
-            'password':hashed_password
+            'username': input_username,
+            'name': input_name,
+            'email': input_email,
+            'password': hashed_password
         }
         if client.capataz.user.find_one({'username': input_username}) is not None:
-            flash(['Username already registered. Try with a different or Login!','warning'])
+            flash(
+                ['Username already registered. Try with a different or Login!', 'warning'])
             return redirect('/register')
         if client.capataz.user.find_one({'email': input_email}) is not None:
-            flash(['Email already registered. Try with a different or Login!','warning'])
+            flash(
+                ['Email already registered. Try with a different or Login!', 'warning'])
             return redirect('/register')
         client.capataz.user.insert_one(u)
         flash(['Successfully registered!', 'success'])
@@ -143,6 +145,16 @@ def about():
 def wip():
     return render_template('wip.html', title='WIP')
 
+@app.route('/maquinaria')
+@login_is_required
+def maquinaria():
+    return render_template('wip.html', title='Maquinaria')
+
+@app.route('/ganaderia')
+@login_is_required
+def ganaderia():
+    return render_template('wip.html', title='Ganaderia')
+
 
 @app.route('/contracts')
 @login_is_required
@@ -159,7 +171,7 @@ def lpg():
 @app.route('/reportes')
 @login_is_required
 def reportes():
-    return render_template('wip.html', title='Dashboard')
+    return render_template('wip.html', title='Reportes')
 
 
 @app.route('/agricultura')
@@ -192,19 +204,19 @@ def establecimiento():
             'lastUpdateDate': lastUpdateDate
         }
         myquery = {"id": f'{id}'}
-        if action == 'new':
+        if action == 'newEstablecimiento':
             creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             e['creationDate'] = creationDate
             client.capataz.establishment.insert_one(e)
-        elif action == 'update':
+        elif action == 'updateEstablecimiento':
             newvalue = {"$set": {"name": f'{name}',
                                  "lastUpdateDate": f'{lastUpdateDate}'}}
             client.capataz.establishment.update_one(myquery, newvalue)
-        elif action == 'deactivate':
+        elif action == 'deactivateEstablecimiento':
             newvalue = {"$set": {"status": 'inactive',
                                  "lastUpdateDate": f'{lastUpdateDate}'}}
             client.capataz.establishment.update_one(myquery, newvalue)
-        elif action == 'activate':
+        elif action == 'activateEstablecimiento':
             newvalue = {"$set": {"status": 'active',
                                  "lastUpdateDate": f'{lastUpdateDate}'}}
             client.capataz.establishment.update_one(myquery, newvalue)
@@ -213,61 +225,70 @@ def establecimiento():
 
         flash(['Success!', 'success'])
 
+
     collection = client.capataz.establishment
     result = list(collection.find({}, {'_id': 0}))
+    print(f'result: {result}')
     params = {
         'establishment': result
     }
     return render_template('establecimiento.html', title='Establecimiento', params=params)
 
 
-@app.route('/configuracion/campo', methods=['GET', 'POST'])
+@app.route('/configuracion/campo', methods=['POST'])
 @login_is_required
 def campo():
     if request.method == 'POST':
         action = request.form['action']
-        print(f'action = {action}')
-        # TODO: Sanitize user input - particularly for query params / avoid taking id from frontend
-        id = request.form['id']
-        name = request.form['name']
-        status = request.form['status']
-        lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        c = {
-            'id': id,
-            'name': name,
-            'status': status,
-            'lastUpdateDate': lastUpdateDate
-        }
-        myquery = {"id": f'{id}'}
-        if action == 'new':
+        print(f'action:{action}')
+        if action == 'newCampo':
+            establecimientoId = request.form['newCampoEstablecimientoId']
+            id = request.form['idCampo']
+            name = request.form['nameCampo']
+            status = request.form['statusCampo']
+            lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            c = {
+                'id': id,
+                'name': name,
+                'status': status,
+                'lastUpdateDate': lastUpdateDate
+            }
             creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             c['creationDate'] = creationDate
-            client.capataz.campo.insert_one(c)
-        elif action == 'update':
-            newvalue = {"$set": {"name": f'{name}',
-                                 "lastUpdateDate": f'{lastUpdateDate}'}}
-            client.capataz.campo.update_one(myquery, newvalue)
-        elif action == 'deactivate':
-            newvalue = {"$set": {"status": 'inactive',
-                                 "lastUpdateDate": f'{lastUpdateDate}'}}
-            client.capataz.campo.update_one(myquery, newvalue)
-        elif action == 'activate':
-            newvalue = {"$set": {"status": 'active',
-                                 "lastUpdateDate": f'{lastUpdateDate}'}}
-            client.capataz.campo.update_one(myquery, newvalue)
-        else:
-            flash(['Error - condition undefined.', 'danger'])
+            # client.capataz.establishment.insert_one(c)
+            myquery = {"id": f'{establecimientoId}'}
+            newvalue = {"$push": {"campos": c }}
+            client.capataz.establishment.update_one(myquery, newvalue)
+    return redirect('/configuracion/establecimiento')
 
-        flash(['Success!', 'success'])
 
-    collection = client.capataz.campo
-    result = list(collection.find({}, {'_id': 0}))
-    params = {
-        'campo': result
-    }
-    return render_template('campo.html', title='Campo', params=params)
+@app.route('/configuracion/lote', methods=['POST'])
+@login_is_required
+def lote():
+    if request.method == 'POST':
+        action = request.form['action']
+        print(f'action:{action}')
+        if action == 'newLote':
+            establecimientoId = request.form['newLoteEstablecimientoId']
+            campoId = request.form['newLoteCampoId']
+            id = request.form['idLote']
+            name = request.form['nameLote']
+            status = request.form['statusLote']
+            lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            l = {
+                'id': id,
+                'name': name,
+                'status': status,
+                'lastUpdateDate': lastUpdateDate
+            }
+            creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            l['creationDate'] = creationDate
+            # client.capataz.establishment.insert_one(c)
+            myquery = {"id": f'{establecimientoId}', "campos.id": f'{campoId}'}
+            newvalue = {"$push": {"campos.$.lotes": l }}
+            client.capataz.establishment.update_one(myquery, newvalue)
+    return redirect('/configuracion/establecimiento')
 
 
 if __name__ == '__main__':
     app.run(debug=True)
-

@@ -20,23 +20,25 @@
 <div class="container mx-auto">
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <button class="btn btn-outline-success btn-sm" type="button"
-            data-bs-toggle="modal" data-bs-target="#newModal">Nuevo</button>
+            data-bs-toggle="modal"
+            data-bs-target="#newEstablecimientoModal">Nuevo
+            Establecimiento</button>
     </div>
 </div>
 
-<!-- newModal -->
-<div class="modal fade" id="newModal" tabindex="-1"
-    aria-labelledby="newModalLabel" aria-hidden="true">
+<!-- newEstablecimientoModal -->
+<div class="modal fade" id="newEstablecimientoModal" tabindex="-1"
+    aria-labelledby="newEstablecimientoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="newModalLabel">Nuevo
-                    {{title}}</h1>
+                <h1 class="modal-title fs-5"
+                    id="newEstablecimientoModalLabel">Nuevo Establecimiento</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
             <form method="POST">
-                <input type="hidden" name="action" value="new">
+                <input type="hidden" name="action" value="newEstablecimiento">
                 <div class="modal-body">
                     <div class="form-floating mb-1">
                         <input type="text" class="form-control" name="id"
@@ -65,34 +67,160 @@
     </div>
 </div>
 
+<!-- newCampoModal -->
+<div class="modal fade" id="newCampoModal" tabindex="-1"
+    aria-labelledby="newCampoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="newCampoModalLabel">Nuevo
+                    Campo</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/configuracion/campo">
+                <input type="hidden" name="action" value="newCampo">
+
+                <div class="modal-body">
+                    <input id="newCampoEstablecimientoId"
+                        name="newCampoEstablecimientoId">
+
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="idCampo"
+                            id="idCampo">
+                        <label for="floatingInput">ID Campo</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control"
+                            name="nameCampo">
+                        <label for="floatingInput">Nombre Campo</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control"
+                            name="statusCampo"
+                            value="active" readonly>
+                        <label for="floatingInput">Status Campo</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit"
+                        class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- newLoteModal -->
+<div class="modal fade" id="newLoteModal" tabindex="-1"
+    aria-labelledby="newLoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="newLoteModalLabel">Nuevo
+                    Lote</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/configuracion/lote">
+                <input type="hidden" name="action" value="newLote">
+
+                <div class="modal-body">
+                    <input id="newLoteEstablecimientoId"
+                        name="newLoteEstablecimientoId">
+                    <input id="newLoteCampoId"
+                        name="newLoteCampoId">
+
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="idLote"
+                            id="idLote">
+                        <label for="floatingInput">ID Lote</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control"
+                            name="nameLote">
+                        <label for="floatingInput">Nombre Lote</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control"
+                            name="statusLote"
+                            value="active" readonly>
+                        <label for="floatingInput">Status Lote</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit"
+                        class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <hr>
 
 <div class="container">
     <div class="row">
         {% for e in params.establishment %}
-        <div class="col-sm-6 mb-3">
-            <div class="card text-center">
+        <div class="col-12 mb-3" name="establecimiento">
+            <div class="card text-center"
+                {% if e.status == 'inactive' %}
+                style="background-color: lightgray;"
+                {% endif %}>
                 <div class="card-body">
                     <h5 class="card-title">{{e.name}}</h5>
                     <p class="card-body">Creation Date:
                         {{e.creationDate}}<br>Last Update Date:
                         {{e.lastUpdateDate}}</p>
-                    <!-- <p class="card-text">Ver establecimiento en detalle.</p> -->
-                    <!-- <button class="btn btn-primary">Editar</button> -->
                     {% if e.status == 'active' %}
-                    <!-- <button class="btn btn-danger">Desactivar</button> -->
-                    <button class="btn btn-outline-primary btn-sm" type="button"
-                        data-bs-toggle="modal" data-bs-target="#updateModal"
-                        onclick='update({{e|tojson|safe}})'>Editar</button>
-                    <button class="btn btn-outline-danger btn-sm" type="button"
-                        data-bs-toggle="modal" data-bs-target="#deactivateModal"
-                        onclick='deactivate({{e|tojson|safe}})'>Desactivar</button>
-                    {% else %}
-                    <!-- <button class="btn btn-success">Activar</button> -->
                     <button class="btn btn-outline-success btn-sm" type="button"
-                        data-bs-toggle="modal" data-bs-target="#activateModal"
-                        onclick='activate({{e|tojson|safe}})'>Activar</button>
+                        data-bs-toggle="modal" data-bs-target="#newCampoModal"
+                        onclick='newCampo({{e|tojson|safe}})'>Nuevo
+                        Campo</button>
+                    <button class="btn btn-outline-primary btn-sm" type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#updateEstablecimientoModal"
+                        onclick='updateEstablecimiento({{e|tojson|safe}})'>Editar</button>
+                    <button class="btn btn-outline-danger btn-sm" type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deactivateEstablecimientoModal"
+                        onclick='deactivateEstablecimiento({{e|tojson|safe}})'>Desactivar</button>
+                    {% else %}
+                    <button class="btn btn-outline-success btn-sm" type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#activateEstablecimientoModal"
+                        onclick='activateEstablecimiento({{e|tojson|safe}})'>Activar</button>
                     {% endif %}
+
+                    <hr>
+
+                    {% for c in e.campos %}
+                    <div class="container mt-2" name="campo">
+                        <p>{{c.name}}</p>
+                        <button class="btn btn-outline-success btn-sm"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#newLoteModal"
+                            onclick='newLote({{e|tojson|safe}},{{c|tojson|safe}})'>Nuevo
+                            Lote</button>
+
+                        {% for l in c.lotes %}
+                        <div class="container mt-2" name="lote">
+                            <p>{{l.name}}</p>
+                            <div class="card text-center">
+                                <div class="card-body">
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                    {% endfor %}
+
                 </div>
             </div>
         </div>
@@ -100,19 +228,21 @@
     </div>
 </div>
 
-<!-- updateModal -->
-<div class="modal fade" id="updateModal" tabindex="-1"
-    aria-labelledby="updateModalLabel" aria-hidden="true">
+<!-- updateEstablecimientoModal -->
+<div class="modal fade" id="updateEstablecimientoModal" tabindex="-1"
+    aria-labelledby="updateEstablecimientoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="updateModalLabel">Editar
+                <h1 class="modal-title fs-5"
+                    id="updateEstablecimientoModalLabel">Editar
                     {{title}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
             <form method="POST">
-                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="action"
+                    value="updateEstablecimiento">
                 <div class="modal-body">
                     <div class="form-floating mb-1">
                         <input type="text" class="form-control" name="id"
@@ -142,20 +272,21 @@
     </div>
 </div>
 
-<!-- deactivateModal -->
-<div class="modal fade" id="deactivateModal" tabindex="-1"
-    aria-labelledby="deactivateModalLabel" aria-hidden="true">
+<!-- deactivateEstablecimientoModal -->
+<div class="modal fade" id="deactivateEstablecimientoModal" tabindex="-1"
+    aria-labelledby="deactivateEstablecimientoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5"
-                    id="deactivateModalLabel">Desactivar
+                    id="deactivateEstablecimientoModalLabel">Desactivar
                     {{title}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
             <form method="POST">
-                <input type="hidden" name="action" value="deactivate">
+                <input type="hidden" name="action"
+                    value="deactivateEstablecimiento">
                 <div class="modal-body">
                     <div class="form-floating mb-1">
                         <input type="text" class="form-control" name="id"
@@ -185,20 +316,21 @@
     </div>
 </div>
 
-<!-- activateModal -->
-<div class="modal fade" id="activateModal" tabindex="-1"
-    aria-labelledby="activateModalLabel" aria-hidden="true">
+<!-- activateEstablecimientoModal -->
+<div class="modal fade" id="activateEstablecimientoModal" tabindex="-1"
+    aria-labelledby="activateEstablecimientoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5"
-                    id="activateModalLabel">Activar
+                    id="activateEstablecimientoModalLabel">Activar
                     {{title}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
             <form method="POST">
-                <input type="hidden" name="action" value="activate">
+                <input type="hidden" name="action"
+                    value="activateEstablecimiento">
                 <div class="modal-body">
                     <div class="form-floating mb-1">
                         <input type="text" class="form-control" name="id"
@@ -238,22 +370,31 @@
     const maxId = arrayOfObjects.reduce((max, obj) => (obj.id > max ? obj.id : max), -Infinity);
     document.getElementById('id').value = parseInt(maxId)+1;
 
-    function update(e){
+    function updateEstablecimiento(e){
         document.getElementById('updateId').value = e.id
         document.getElementById('updateName').value = e.name
         document.getElementById('updateStatus').value ='active'
     }
 
-    function deactivate(e){
+    function deactivateEstablecimiento(e){
         document.getElementById('deactivateId').value = e.id
         document.getElementById('deactivateName').value = e.name
         document.getElementById('deactivateStatus').value = 'inactive'
     }
     
-    function activate(e){
+    function activateEstablecimiento(e){
         document.getElementById('activateId').value = e.id
         document.getElementById('activateName').value = e.name
         document.getElementById('activateStatus').value = 'active'
+    }
+
+    function newCampo(e){
+        document.getElementById('newCampoEstablecimientoId').value = e.id
+    }
+
+    function newLote(e,c){
+        document.getElementById('newLoteEstablecimientoId').value = e.id
+        document.getElementById('newLoteCampoId').value = c.id
     }
 
 </script>

@@ -7,6 +7,7 @@
 - SimpleIcons: https://simpleicons.org/
 - HeroIcons: https://heroicons.com/
 - FontAwesome: https://fontawesome.com/
+- Freepik: https://www.freepik.com/
 - Bootstrap: https://getbootstrap.com/docs/5.3/
 - Giphy: https://giphy.com/gifs/movie-despicable-me-minions-WxxsVAJLSBsFa
 - Green: #198754
