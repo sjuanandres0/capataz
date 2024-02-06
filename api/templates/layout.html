@@ -15,6 +15,11 @@
 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta property="og:title" content="Capataz" />
+        <meta property="og:description" content="Inteligencia Agropecuaria Simple">
+        <meta property="og:image" itemprop="image" content="https://capataz-eight.vercel.app/static/menu.jpg"/>
+        <meta property="og:url" content="https://capataz-eight.vercel.app/" />
+
 
         <link rel="icon"
             href="{{ url_for('static', filename='seedling-solid.svg') }}"
@@ -31,7 +36,7 @@
         <script src="https://kit.fontawesome.com/6b5448959c.js"
             crossorigin="anonymous"></script>
 
-        <title>Cptz {% block title %}{% endblock %}</title>
+        <title>Capataz {% block title %}{% endblock %}</title>
         {% from 'includes/macros.html' import active_class %}
         {% from 'includes/macros.html' import sentence_case %}
 

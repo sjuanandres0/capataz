@@ -172,10 +172,10 @@
                 style="background-color: lightgray;"
                 {% endif %}>
                 <div class="card-body">
-                    <h5 class="card-title">{{e.name}}</h5>
-                    <p class="card-body">Creation Date:
-                        {{e.creationDate}}<br>Last Update Date:
-                        {{e.lastUpdateDate}}</p>
+                    <h3 class="card-title">{{e.name}} <span class="badge bg-secondary">{{e.campos|length}}</span></h3>
+                    <p class="card-body"><small>Creation Date:
+                            {{e.creationDate}}<br>Last Update Date:
+                            {{e.lastUpdateDate}}</small></p>
                     {% if e.status == 'active' %}
                     <button class="btn btn-outline-success btn-sm" type="button"
                         data-bs-toggle="modal" data-bs-target="#newCampoModal"
@@ -198,6 +198,7 @@
 
                     <hr>
 
+                    {% if e.status == 'active' %}
                     {% for c in e.campos %}
                     <div class="container mt-2" name="campo">
                         <p>{{c.name}}</p>
@@ -220,6 +221,7 @@
 
                     </div>
                     {% endfor %}
+                    {% endif %}
 
                 </div>
             </div>
