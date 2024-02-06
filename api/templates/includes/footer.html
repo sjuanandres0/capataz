@@ -32,10 +32,10 @@
 <footer class="footer">
     <div class="footer-column">
         <a href="/">
-        <i class="fa-solid fa-seedling" style="color: #198754;"></i></a>
+            <i class="fa-solid fa-seedling" style="color: #198754;"></i></a>
     </div>
     <div class="footer-column">
-        {{session['name']}} | {{session['username']}}
+        <small>{{session['name']}} {{session['username']}}</small>
     </div>
 
     <div class="footer-column empty-column" style="justify-self: end">
@@ -56,11 +56,15 @@
     <div class="footer-column" style="justify-self: end">
         <a
             href="https://cloud.mongodb.com/v2/65316f7551202e058a2cdaa3#/clusters"
-            target="_blank"><i class="fa-solid fa-database" style="color:#198754"></i></a>
+            target="_blank"><i class="fa-solid fa-database"
+                style="color:#198754"></i></a>
     </div>
     <div class="footer-column" style="justify-self: end">
-        <a href='/logout'><button type="button" class="btn btn-link" style="color:#198754">Logout <i
-                    class="fa-solid fa-arrow-right-from-bracket" style="color:#198754"></i></button></a>
+        <small><a href='/logout'><button type="button" class="btn btn-link"
+                    style="color:#198754"><i
+                        class="fa-solid fa-arrow-right-from-bracket"
+                        style="color:#198754"></i></button></a>
+        </small>
     </div>
     {% endif %}
 </footer>

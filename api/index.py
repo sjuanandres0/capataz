@@ -242,24 +242,39 @@ def campo():
     if request.method == 'POST':
         action = request.form['action']
         print(f'action:{action}')
+        establecimientoId = request.form['campoEstablecimientoId']
+        id = request.form['idCampo']
+        name = request.form['nameCampo']
+        status = request.form['statusCampo']
+        lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        c = {
+            'id': id,
+            'name': name,
+            'status': status,
+            'lastUpdateDate': lastUpdateDate
+        }
         if action == 'newCampo':
-            establecimientoId = request.form['newCampoEstablecimientoId']
-            id = request.form['idCampo']
-            name = request.form['nameCampo']
-            status = request.form['statusCampo']
-            lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            c = {
-                'id': id,
-                'name': name,
-                'status': status,
-                'lastUpdateDate': lastUpdateDate
-            }
             creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             c['creationDate'] = creationDate
-            # client.capataz.establishment.insert_one(c)
             myquery = {"id": f'{establecimientoId}'}
             newvalue = {"$push": {"campos": c }}
             client.capataz.establishment.update_one(myquery, newvalue)
+        elif action == 'updateCampo':
+            myquery = {"id": f'{establecimientoId}', "campos.id": f'{id}'}
+            newvalue = {"$set": {"campos.$.name": f'{name}',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            client.capataz.establishment.update_one(myquery, newvalue)
+        elif action == 'deactivateCampo':
+            myquery = {"id": f'{establecimientoId}', "campos.id": f'{id}'}
+            newvalue = {"$set": {"campos.$.status": 'inactive',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            client.capataz.establishment.update_one(myquery, newvalue)
+        elif action == 'activateCampo':
+            myquery = {"id": f'{establecimientoId}', "campos.id": f'{id}'}
+            newvalue = {"$set": {"campos.$.status": 'active',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            client.capataz.establishment.update_one(myquery, newvalue)
+    
     return redirect('/configuracion/establecimiento')
 
 
@@ -269,25 +284,44 @@ def lote():
     if request.method == 'POST':
         action = request.form['action']
         print(f'action:{action}')
+        establecimientoId = request.form['loteEstablecimientoId']
+        campoId = request.form['loteCampoId']
+        id = request.form['idLote']
+        name = request.form['nameLote']
+        status = request.form['statusLote']
+        lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        l = {
+            'id': id,
+            'name': name,
+            'status': status,
+            'lastUpdateDate': lastUpdateDate
+        }
         if action == 'newLote':
-            establecimientoId = request.form['newLoteEstablecimientoId']
-            campoId = request.form['newLoteCampoId']
-            id = request.form['idLote']
-            name = request.form['nameLote']
-            status = request.form['statusLote']
-            lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            l = {
-                'id': id,
-                'name': name,
-                'status': status,
-                'lastUpdateDate': lastUpdateDate
-            }
             creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             l['creationDate'] = creationDate
-            # client.capataz.establishment.insert_one(c)
             myquery = {"id": f'{establecimientoId}', "campos.id": f'{campoId}'}
             newvalue = {"$push": {"campos.$.lotes": l }}
             client.capataz.establishment.update_one(myquery, newvalue)
+        elif action == 'update':
+            myquery = {"id": f'{establecimientoId}', "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
+            newvalue = {"$set": {"campos.$[campo].lotes.$[lote].name": f'{name}',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            array_filters = [{"campo.id": f'{campoId}'}, {"lote.id": f'{id}'}]
+            client.capataz.establishment.update_one(myquery, newvalue, array_filters=array_filters)
+        elif action == 'deactivate':
+            myquery = {"id": f'{establecimientoId}', "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
+            newvalue = {"$set": {"campos.$[campo].lotes.$[lote].status": 'inactive',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            array_filters = [{"campo.id": f'{campoId}'}, {"lote.id": f'{id}'}]
+            client.capataz.establishment.update_one(myquery, newvalue, array_filters=array_filters)
+        elif action == 'activate':
+            myquery = {"id": f'{establecimientoId}', "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
+            newvalue = {"$set": {"campos.$[campo].lotes.$[lote].status": 'active',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            array_filters = [{"campo.id": f'{campoId}'}, {"lote.id": f'{id}'}]
+            client.capataz.establishment.update_one(myquery, newvalue, array_filters=array_filters)
+
+
     return redirect('/configuracion/establecimiento')
 
 

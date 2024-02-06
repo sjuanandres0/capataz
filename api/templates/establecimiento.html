@@ -18,7 +18,7 @@
 <hr>
 
 <div class="container mx-auto">
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <div class="d-grid gap-1 d-md-flex justify-content-md-end">
         <button class="btn btn-outline-success btn-sm" type="button"
             data-bs-toggle="modal"
             data-bs-target="#newEstablecimientoModal">Nuevo
@@ -82,72 +82,24 @@
                 <input type="hidden" name="action" value="newCampo">
 
                 <div class="modal-body">
-                    <input id="newCampoEstablecimientoId"
-                        name="newCampoEstablecimientoId">
+                    <input id="newCampoEstablecimientoId" type="hidden"
+                        name="campoEstablecimientoId">
 
                     <div class="form-floating mb-1">
                         <input type="text" class="form-control" name="idCampo"
-                            id="idCampo">
-                        <label for="floatingInput">ID Campo</label>
+                            id="idCampo" readonly>
+                        <label for="floatingInput">ID</label>
                     </div>
                     <div class="form-floating mb-1">
                         <input type="text" class="form-control"
                             name="nameCampo">
-                        <label for="floatingInput">Nombre Campo</label>
+                        <label for="floatingInput">Nombre</label>
                     </div>
                     <div class="form-floating mb-1">
                         <input type="text" class="form-control"
                             name="statusCampo"
                             value="active" readonly>
-                        <label for="floatingInput">Status Campo</label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary"
-                        data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit"
-                        class="btn btn-success">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- newLoteModal -->
-<div class="modal fade" id="newLoteModal" tabindex="-1"
-    aria-labelledby="newLoteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="newLoteModalLabel">Nuevo
-                    Lote</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-            </div>
-            <form method="POST" action="/configuracion/lote">
-                <input type="hidden" name="action" value="newLote">
-
-                <div class="modal-body">
-                    <input id="newLoteEstablecimientoId"
-                        name="newLoteEstablecimientoId">
-                    <input id="newLoteCampoId"
-                        name="newLoteCampoId">
-
-                    <div class="form-floating mb-1">
-                        <input type="text" class="form-control" name="idLote"
-                            id="idLote">
-                        <label for="floatingInput">ID Lote</label>
-                    </div>
-                    <div class="form-floating mb-1">
-                        <input type="text" class="form-control"
-                            name="nameLote">
-                        <label for="floatingInput">Nombre Lote</label>
-                    </div>
-                    <div class="form-floating mb-1">
-                        <input type="text" class="form-control"
-                            name="statusLote"
-                            value="active" readonly>
-                        <label for="floatingInput">Status Lote</label>
+                        <label for="floatingInput">Status</label>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -167,57 +119,138 @@
     <div class="row">
         {% for e in params.establishment %}
         <div class="col-12 mb-4" name="establecimiento">
-            <div class="card text-center shadow p-3"
+            <div class="card text-center shadow"
                 {% if e.status == 'inactive' %}
                 style="background-color: lightgray;"
                 {% endif %}>
                 <div class="card-body">
-                    <h3 class="card-title">{{e.name}} <span class="badge bg-secondary">{{e.campos|length}}</span></h3>
+                    <h3 class="card-title">{{e.name}}
+                        {% if e.campos|length > 0 and e.status=='active' %}
+                        <span
+                            class="badge bg-secondary">{{e.campos|length}}</span>
+                        {% endif %}
+                    </h3>
                     <p class="card-body"><small>Creation Date:
                             {{e.creationDate}}<br>Last Update Date:
                             {{e.lastUpdateDate}}</small></p>
                     {% if e.status == 'active' %}
-                    <button class="btn btn-outline-success btn-sm" type="button"
+                    <button class="btn btn-outline-success btn-sm my-1"
+                        type="button"
                         data-bs-toggle="modal" data-bs-target="#newCampoModal"
                         onclick='newCampo({{e|tojson|safe}})'>Nuevo
                         Campo</button>
-                    <button class="btn btn-outline-primary btn-sm" type="button"
+                    <button class="btn btn-outline-primary btn-sm my-1"
+                        type="button"
                         data-bs-toggle="modal"
                         data-bs-target="#updateEstablecimientoModal"
-                        onclick='updateEstablecimiento({{e|tojson|safe}})'>Editar</button>
-                    <button class="btn btn-outline-danger btn-sm" type="button"
+                        onclick='updateEstablecimiento({{e|tojson|safe}})'>Editar
+                        Estab.</button>
+                    <button class="btn btn-outline-danger btn-sm my-1"
+                        type="button"
                         data-bs-toggle="modal"
                         data-bs-target="#deactivateEstablecimientoModal"
-                        onclick='deactivateEstablecimiento({{e|tojson|safe}})'>Desactivar</button>
+                        onclick='deactivateEstablecimiento({{e|tojson|safe}})'>Desactivar
+                        Estab.</button>
                     {% else %}
-                    <button class="btn btn-outline-success btn-sm" type="button"
+                    <button class="btn btn-outline-success btn-sm my-1"
+                        type="button"
                         data-bs-toggle="modal"
                         data-bs-target="#activateEstablecimientoModal"
-                        onclick='activateEstablecimiento({{e|tojson|safe}})'>Activar</button>
+                        onclick='activateEstablecimiento({{e|tojson|safe}})'>Activar
+                        Estab.</button>
                     {% endif %}
 
-                    <hr>
-
                     {% if e.status == 'active' %}
+                    <hr>
                     {% for c in e.campos %}
-                    <div class="container mt-2" name="campo">
-                        <p>{{c.name}}</p>
-                        <button class="btn btn-outline-success btn-sm"
-                            type="button"
-                            data-bs-toggle="modal"
-                            data-bs-target="#newLoteModal"
-                            onclick='newLote({{e|tojson|safe}},{{c|tojson|safe}})'>Nuevo
-                            Lote</button>
+                    <div class="container my-4 mx-0" name="campo">
+                        <div class="card text-center shadow-sm">
+                            <div class="card-body"
+                                {% if c.status == 'inactive' %}
+                                style="background-color: lightgray;"
+                                {% endif %}>
+                                <h4 class="card-title">{{c.name}}</h4>
+                                {% if c.status =='active' %}
+                                <button
+                                    class="btn btn-outline-success btn-sm my-1"
+                                    type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#loteModal"
+                                    onclick='newLote({{e|tojson|safe}},{{c|tojson|safe}})'>Nuevo
+                                    Lote</button>
+                                <button
+                                    class="btn btn-outline-primary btn-sm my-1"
+                                    type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#updateCampoModal"
+                                    onclick='updateCampo({{e|tojson|safe}},{{c|tojson|safe}})'>Editar
+                                    Campo</button>
+                                <button
+                                    class="btn btn-outline-danger btn-sm my-1"
+                                    type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deactivateCampoModal"
+                                    onclick='deactivateCampo({{e|tojson|safe}},{{c|tojson|safe}})'>Desactivar
+                                    Campo</button>
+                                {% else %}
+                                <button
+                                    class="btn btn-outline-success btn-sm my-1"
+                                    type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#activateCampoModal"
+                                    onclick='activateCampo({{e|tojson|safe}},{{c|tojson|safe}})'>Activar
+                                    Campo</button>
+                                {% endif %}
 
-                        {% for l in c.lotes %}
-                        <div class="container mt-2" name="lote">
-                            <p>{{l.name}}</p>
-                            <div class="card text-center">
-                                <div class="card-body">
+                                {% if c.status == 'active' %}
+                                <hr>
+                                <div class="container mt-2" name="lote">
+                                    <div class="row justify-content-center">
+                                        {% for l in c.lotes %}
+                                        <div class="col-sm-6 my-2">
+                                            <div class="card">
+                                                <div class="card-body"
+                                                    {% if l.status == 'inactive'
+                                                    %}
+                                                    style="background-color: lightgray;"
+                                                    {% endif %}>
+                                                    <h5
+                                                        class="card-title">{{l.name}}</h5>
+                                                    {% if l.status == 'active'
+                                                    %}
+                                                    <button
+                                                        class="btn btn-outline-primary btn-sm my-1"
+                                                        type="button"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#loteModal"
+                                                        onclick='updateLote("update",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Editar
+                                                        Lote</button>
+                                                    <button
+                                                        class="btn btn-outline-danger btn-sm my-1"
+                                                        type="button"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#loteModal"
+                                                        onclick='updateLote("deactivate",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Desactivar
+                                                        Lote</button>
+                                                    {% else %}
+                                                    <button
+                                                        class="btn btn-outline-success btn-sm my-1"
+                                                        type="button"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#loteModal"
+                                                        onclick='updateLote("activate",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Activar
+                                                        Lote</button>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
                                 </div>
+
                             </div>
                         </div>
-                        {% endfor %}
 
                     </div>
                     {% endfor %}
@@ -237,8 +270,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5"
-                    id="updateEstablecimientoModalLabel">Editar
-                    {{title}}</h1>
+                    id="updateEstablecimientoModalLabel">Editar Establecimiento</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
@@ -274,6 +306,52 @@
     </div>
 </div>
 
+<!-- updateCampoModal -->
+<div class="modal fade" id="updateCampoModal" tabindex="-1"
+    aria-labelledby="updateCampoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5"
+                    id="updateCampoModalLabel">Editar Campo</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/configuracion/campo">
+                <input type="hidden" name="action" value="updateCampo">
+                <div class="modal-body">
+                    <input id="updateCampoEstablecimientoId" type="hidden"
+                        name="campoEstablecimientoId">
+
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="idCampo"
+                            id="updateCampoId" readonly>
+                        <label for="floatingInput">ID</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="nameCampo"
+                            id="updateCampoName">
+                        <label for="floatingInput">Nombre</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control"
+                            name="statusCampo"
+                            id="updateCampoStatus" readonly
+                            value="active">
+                        <label for="floatingInput">Status</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit"
+                        class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- deactivateEstablecimientoModal -->
 <div class="modal fade" id="deactivateEstablecimientoModal" tabindex="-1"
     aria-labelledby="deactivateEstablecimientoModalLabel" aria-hidden="true">
@@ -281,8 +359,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5"
-                    id="deactivateEstablecimientoModalLabel">Desactivar
-                    {{title}}</h1>
+                    id="deactivateEstablecimientoModalLabel">Desactivar Establecimiento</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
@@ -302,8 +379,52 @@
                     </div>
                     <div class="form-floating mb-1">
                         <input type="text" class="form-control" name="status"
-                            id="deactivateStatus" readonly
-                            value="active">
+                            id="deactivateStatus" readonly>
+                        <label for="floatingInput">Status</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit"
+                        class="btn btn-danger">Desactivar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- deactivateCampoModal -->
+<div class="modal fade" id="deactivateCampoModal" tabindex="-1"
+    aria-labelledby="deactivateCampoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5"
+                    id="deactivateCampoModalLabel">Desactivar Campo</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/configuracion/campo">
+                <input type="hidden" name="action"
+                    value="deactivateCampo">
+                <div class="modal-body">
+                    <input id="deactivateCampoEstablecimientoId" type="hidden"
+                        name="campoEstablecimientoId">
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="idCampo"
+                            id="deactivateCampoId" readonly>
+                        <label for="floatingInput">ID</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="nameCampo"
+                            id="deactivateCampoName" readonly>
+                        <label for="floatingInput">Nombre</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control"
+                            name="statusCampo"
+                            id="deactivateCampoStatus" readonly>
                         <label for="floatingInput">Status</label>
                     </div>
                 </div>
@@ -325,8 +446,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5"
-                    id="activateEstablecimientoModalLabel">Activar
-                    {{title}}</h1>
+                    id="activateEstablecimientoModalLabel">Activar Establecimiento</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
@@ -346,8 +466,7 @@
                     </div>
                     <div class="form-floating mb-1">
                         <input type="text" class="form-control" name="status"
-                            id="activateStatus" readonly
-                            value="active">
+                            id="activateStatus" readonly>
                         <label for="floatingInput">Status</label>
                     </div>
                 </div>
@@ -362,22 +481,160 @@
     </div>
 </div>
 
+<!-- activateCampoModal -->
+<div class="modal fade" id="activateCampoModal" tabindex="-1"
+    aria-labelledby="activateCampoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5"
+                    id="activateCampoModalLabel">Activar Campo</h1>
+                <button type="button" class="btn-closse" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/configuracion/campo">
+                <input type="hidden" name="action"
+                    value="activateCampo">
+                <div class="modal-body">
+                    <input id="activateCampoEstablecimientoId" type="hidden"
+                        name="campoEstablecimientoId">
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="idCampo"
+                            id="activateCampoId" readonly>
+                        <label for="floatingInput">ID</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="nameCampo"
+                            id="activateCampoName" readonly>
+                        <label for="floatingInput">Nombre</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control"
+                            name="statusCampo"
+                            id="activateCampoStatus" readonly>
+                        <label for="floatingInput">Status</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit"
+                        class="btn btn-success">Activar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- updateCampoModal -->
+<div class="modal fade" id="updateCampoModal" tabindex="-1"
+    aria-labelledby="updateCampoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5"
+                    id="updateCampoModalLabel">Editar Campo</h1>
+                <button type="button" class="btn-closse" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/configuracion/campo">
+                <input type="hidden" name="action"
+                    value="updateCampo">
+                <div class="modal-body">
+                    <input id="updateCampoEstablecimientoId" type="hidden"
+                        name="campoEstablecimientoId">
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="idCampo"
+                            id="updateCampoId" readonly>
+                        <label for="floatingInput">ID</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control" name="nameCampo"
+                            id="updateCampoName">
+                        <label for="floatingInput">Nombre</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control"
+                            name="statusCampo"
+                            id="updateCampoStatus" readonly>
+                        <label for="floatingInput">Status</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit"
+                        class="btn btn-success">Activar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- loteModal -->
+<div class="modal fade" id="loteModal" tabindex="-1"
+    aria-labelledby="loteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="loteModalLabel">Lote</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/configuracion/lote">
+                <input type="hidden" id="actionLote" name="action">
+                <input type="hidden" id="loteEstablecimientoId" name="loteEstablecimientoId">
+                <input type="hidden" id="loteCampoId" name="loteCampoId">
+
+                <div class="modal-body">
+
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control"
+                            name="idLote" id="idLote" readonly>
+                        <label for="floatingInput">ID</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control"
+                            name="nameLote" id="nameLote">
+                        <label for="floatingInput">Nombre</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="text" class="form-control"
+                            name="statusLote" id="statusLote" readonly>
+                        <label for="floatingInput">Status</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit"
+                        class="btn" id="loteSubmitButton">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <hr>
 
 <script>
     const params = {{ params|tojson }}
     console.log(params)
 
-    const arrayOfObjects = params.establishment;
-    const maxId = arrayOfObjects.reduce((max, obj) => (obj.id > max ? obj.id : max), -Infinity);
-    document.getElementById('id').value = parseInt(maxId)+1;
+    // const arrayOfObjects = params.establishment;
+    // const maxId = arrayOfObjects.reduce((max, obj) => (obj.id > max ? obj.id : max), -Infinity);
+    // document.getElementById('id').value = parseInt(maxId)+1;
+    document.getElementById('id').value = generateId(null)
+
+    // TODO: simplify logic update/deactivate/activate while sanitizing input from user.
+    // TODO: avoid multiple modals. Implement (replicate) Lote logic to Campo and Establecimiento - DRY.
 
     function updateEstablecimiento(e){
         document.getElementById('updateId').value = e.id
         document.getElementById('updateName').value = e.name
         document.getElementById('updateStatus').value ='active'
     }
-
+    
     function deactivateEstablecimiento(e){
         document.getElementById('deactivateId').value = e.id
         document.getElementById('deactivateName').value = e.name
@@ -389,15 +646,81 @@
         document.getElementById('activateName').value = e.name
         document.getElementById('activateStatus').value = 'active'
     }
+    
 
     function newCampo(e){
         document.getElementById('newCampoEstablecimientoId').value = e.id
+        document.getElementById('idCampo').value = generateId(e.id)
+    }
+    
+    function updateCampo(e,c){
+        document.getElementById('updateCampoEstablecimientoId').value = e.id
+        document.getElementById('updateCampoId').value = c.id
+        document.getElementById('updateCampoName').value = c.name
+        document.getElementById('updateCampoStatus').value ='active'
     }
 
-    function newLote(e,c){
-        document.getElementById('newLoteEstablecimientoId').value = e.id
-        document.getElementById('newLoteCampoId').value = c.id
+    function deactivateCampo(e,c){
+        document.getElementById('deactivateCampoEstablecimientoId').value = e.id
+        document.getElementById('deactivateCampoId').value = c.id
+        document.getElementById('deactivateCampoName').value = c.name
+        document.getElementById('deactivateCampoStatus').value ='inactive'
     }
+    
+    function activateCampo(e,c){
+        document.getElementById('activateCampoEstablecimientoId').value = e.id
+        document.getElementById('activateCampoId').value = c.id
+        document.getElementById('activateCampoName').value = c.name
+        document.getElementById('activateCampoStatus').value ='active'
+    }
+
+    
+    function newLote(e,c){
+        document.getElementById('actionLote').value = 'newLote'
+        document.getElementById('loteEstablecimientoId').value = e.id
+        document.getElementById('loteCampoId').value = c.id
+        document.getElementById('idLote').value = generateId(e.id + '_' + c.id)
+        document.getElementById('statusLote').value = 'active'
+        document.getElementById('loteSubmitButton').classList.add('btn-success')
+    }
+
+    function updateLote(action, e,c,l){
+        document.getElementById('actionLote').value = action
+        document.getElementById('loteEstablecimientoId').value = e.id
+        document.getElementById('loteCampoId').value = c.id
+        document.getElementById('idLote').value = l.id
+        document.getElementById('nameLote').value = l.name
+        document.getElementById('loteSubmitButton').className = "btn"
+        switch (action){
+            case 'deactivate':
+            document.getElementById('statusLote').value = 'inactive'
+            document.getElementById('loteSubmitButton').classList.add('btn-danger')
+            break;
+            case 'activate':
+            document.getElementById('statusLote').value = 'active'
+            document.getElementById('loteSubmitButton').classList.add('btn-success')
+            break;
+            case 'update':
+            document.getElementById('statusLote').value = 'active'
+            document.getElementById('loteSubmitButton').classList.add('btn-primary')
+            break;
+        }
+    }
+
+    function generateId(prefix) {
+        var currentDate = new Date().toISOString().slice(0,10).replace(/-/g,"");
+        // Generate random alphanumeric strings for XXX-XXX and YYY-YYY parts
+        var randomString1 = Array.from({length: 4}, () => Math.random().toString(36)[2]).join('').toUpperCase();
+        var randomString2 = Array.from({length: 4}, () => Math.random().toString(36)[2]).join('').toUpperCase();
+        // Concatenate parts to form the ID
+        var newId = `${currentDate}_${randomString1}-${randomString2}`;
+        // Add prefix for Campo
+        if (prefix) {
+            newId = `${prefix}_${newId}`;
+        }
+        return newId;
+    }
+
 
 </script>
 

@@ -37,10 +37,27 @@
                     <a class="nav-link {{ active_class('reportes') }}"
                         aria-current="page" href="/reportes">Reportes</a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link {{ active_class('configuracion') }}"
                         aria-current="page" href="/configuracion">Configuracion</a>
                 </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ active_class('configuracion') }}" href="configuracion" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Configuracion
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="/configuracion/establecimiento">Establecimientos</a></li>
+                      <li><a class="dropdown-item" href="/wip">Transportistas</a></li>
+                      <li><a class="dropdown-item" href="/wip">Choferes</a></li>
+                      <li><a class="dropdown-item" href="/wip">Campaña</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="/configuracion">Configuracion</a></li>
+                    </ul>
+                  </li>
+          
+
                 <li class="nav-item">
                     <a class="nav-link {{ active_class('logout') }}"
                         aria-current="page" href="/logout">Logout</a>
