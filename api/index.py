@@ -44,7 +44,7 @@ def login():
     if session.get('username'):
         return redirect('/')
     if request.method == 'POST':
-        input_username = request.form.get('username')
+        input_username = request.form.get('username').lower()
         input_password = request.form.get('password')
         user = client.capataz.user.find_one({'username': input_username})
         if user is None:
@@ -66,16 +66,17 @@ def register():
     if session.get('name'):
         return redirect('/')
     if request.method == 'POST':
-        input_username = request.form.get('username')
+        input_username = request.form.get('username').lower()
         input_name = request.form.get('name')
-        input_email = request.form.get('email')
+        input_email = request.form.get('email').lower()
         input_password = request.form.get('password')
         hashed_password = hashpw(input_password.encode('utf-8'), gensalt())
         u = {
             'username': input_username,
             'name': input_name,
             'email': input_email,
-            'password': hashed_password
+            'password': hashed_password,
+            'creationDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         if client.capataz.user.find_one({'username': input_username}) is not None:
             flash(
