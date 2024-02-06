@@ -3,7 +3,7 @@ import sys
 import json
 from datetime import datetime
 from flask import Flask, render_template, session, redirect, request, abort, flash, jsonify
-from flask_session import Session
+# from flask_session import Session
 from functools import wraps
 
 # print(sys.path)
@@ -20,10 +20,13 @@ def getPasswordAccepted():
         from credentials import password_accepted
     password_accepted = [password_accepted]
     return password_accepted
+    # collection = client.capataz.credentials
+    # cred = collection.find_one()
 
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
+
+# app.config["SESSION_PERMANENT"] = False
+# app.config["SESSION_TYPE"] = "filesystem"
+# Session(app)
 
 
 def login_is_required(view_func):
