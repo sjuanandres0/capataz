@@ -96,11 +96,6 @@ def logout():
     return redirect('/')
 
 
-@app.route('/hello_world')
-def hello_world():
-    return 'Hello, World!'
-
-
 @app.route('/about')
 def about():
     return 'About'
@@ -161,16 +156,10 @@ def lpg():
     return render_template('wip.html', title='Liquidaciones')
 
 
-@app.route('/dash')
+@app.route('/reportes')
 @login_is_required
-def dash():
+def reportes():
     return render_template('wip.html', title='Dashboard')
-
-
-@app.route('/settings')
-@login_is_required
-def settings():
-    return render_template('wip.html', title='Configuracion')
 
 
 @app.route('/agricultura')
@@ -232,5 +221,53 @@ def establecimiento():
     return render_template('establecimiento.html', title='Establecimiento', params=params)
 
 
+@app.route('/configuracion/campo', methods=['GET', 'POST'])
+@login_is_required
+def campo():
+    if request.method == 'POST':
+        action = request.form['action']
+        print(f'action = {action}')
+        # TODO: Sanitize user input - particularly for query params / avoid taking id from frontend
+        id = request.form['id']
+        name = request.form['name']
+        status = request.form['status']
+        lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        c = {
+            'id': id,
+            'name': name,
+            'status': status,
+            'lastUpdateDate': lastUpdateDate
+        }
+        myquery = {"id": f'{id}'}
+        if action == 'new':
+            creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            c['creationDate'] = creationDate
+            client.capataz.campo.insert_one(c)
+        elif action == 'update':
+            newvalue = {"$set": {"name": f'{name}',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            client.capataz.campo.update_one(myquery, newvalue)
+        elif action == 'deactivate':
+            newvalue = {"$set": {"status": 'inactive',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            client.capataz.campo.update_one(myquery, newvalue)
+        elif action == 'activate':
+            newvalue = {"$set": {"status": 'active',
+                                 "lastUpdateDate": f'{lastUpdateDate}'}}
+            client.capataz.campo.update_one(myquery, newvalue)
+        else:
+            flash(['Error - condition undefined.', 'danger'])
+
+        flash(['Success!', 'success'])
+
+    collection = client.capataz.campo
+    result = list(collection.find({}, {'_id': 0}))
+    params = {
+        'campo': result
+    }
+    return render_template('campo.html', title='Campo', params=params)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+

@@ -69,29 +69,29 @@
 
 <div class="container">
     <div class="row">
-        {% for e in params.establishment %}
+        {% for c in params.campo %}
         <div class="col-sm-6 mb-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h5 class="card-title">{{e.name}}</h5>
+                    <h5 class="card-title">{{c.name}}</h5>
                     <p class="card-body">Creation Date:
-                        {{e.creationDate}}<br>Last Update Date:
-                        {{e.lastUpdateDate}}</p>
+                        {{c.creationDate}}<br>Last Update Date:
+                        {{c.lastUpdateDate}}</p>
                     <!-- <p class="card-text">Ver establecimiento en detalle.</p> -->
                     <!-- <button class="btn btn-primary">Editar</button> -->
-                    {% if e.status == 'active' %}
+                    {% if c.status == 'active' %}
                     <!-- <button class="btn btn-danger">Desactivar</button> -->
                     <button class="btn btn-outline-primary btn-sm" type="button"
                         data-bs-toggle="modal" data-bs-target="#updateModal"
-                        onclick='update({{e|tojson|safe}})'>Editar</button>
+                        onclick='update({{c|tojson|safe}})'>Editar</button>
                     <button class="btn btn-outline-danger btn-sm" type="button"
                         data-bs-toggle="modal" data-bs-target="#deactivateModal"
-                        onclick='deactivate({{e|tojson|safe}})'>Desactivar</button>
+                        onclick='deactivate({{c|tojson|safe}})'>Desactivar</button>
                     {% else %}
                     <!-- <button class="btn btn-success">Activar</button> -->
                     <button class="btn btn-outline-success btn-sm" type="button"
                         data-bs-toggle="modal" data-bs-target="#activateModal"
-                        onclick='activate({{e|tojson|safe}})'>Activar</button>
+                        onclick='activate({{c|tojson|safe}})'>Activar</button>
                     {% endif %}
                 </div>
             </div>
@@ -234,25 +234,30 @@
     const params = {{ params|tojson }}
     console.log(params)
 
-    const arrayOfObjects = params.establishment;
-    const maxId = arrayOfObjects.reduce((max, obj) => (obj.id > max ? obj.id : max), -Infinity);
+    const arrayOfObjects = params.campo;
+    var maxId = 0
+    try {
+        maxId = arrayOfObjects.reduce((max, obj) => (obj.id > max ? obj.id : max), -Infinity);
+    } catch(exception) {
+        console.log(exception)
+    }
     document.getElementById('id').value = parseInt(maxId)+1;
 
-    function update(e){
-        document.getElementById('updateId').value = e.id
-        document.getElementById('updateName').value = e.name
+    function update(c){
+        document.getElementById('updateId').value = c.id
+        document.getElementById('updateName').value = c.name
         document.getElementById('updateStatus').value ='active'
     }
 
-    function deactivate(e){
-        document.getElementById('deactivateId').value = e.id
-        document.getElementById('deactivateName').value = e.name
+    function deactivate(c){
+        document.getElementById('deactivateId').value = c.id
+        document.getElementById('deactivateName').value = c.name
         document.getElementById('deactivateStatus').value = 'inactive'
     }
     
-    function activate(e){
-        document.getElementById('activateId').value = e.id
-        document.getElementById('activateName').value = e.name
+    function activate(c){
+        document.getElementById('activateId').value = c.id
+        document.getElementById('activateName').value = c.name
         document.getElementById('activateStatus').value = 'active'
     }
 
