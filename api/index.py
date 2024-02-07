@@ -8,8 +8,8 @@ from functools import wraps
 
 # print(sys.path)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from db import client
 
+from db import client
 
 app = Flask(__name__)
 app.secret_key = "TukiTukiSecretKey"
@@ -146,10 +146,12 @@ def about():
 def wip():
     return render_template('wip.html', title='WIP')
 
+
 @app.route('/maquinaria')
 @login_is_required
 def maquinaria():
     return render_template('wip.html', title='Maquinaria')
+
 
 @app.route('/ganaderia')
 @login_is_required
@@ -226,7 +228,6 @@ def establecimiento():
 
         flash(['Success!', 'success'])
 
-
     collection = client.capataz.establishment
     result = list(collection.find({}, {'_id': 0}))
     print(f'result: {result}')
@@ -257,7 +258,7 @@ def campo():
             creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             c['creationDate'] = creationDate
             myquery = {"id": f'{establecimientoId}'}
-            newvalue = {"$push": {"campos": c }}
+            newvalue = {"$push": {"campos": c}}
             client.capataz.establishment.update_one(myquery, newvalue)
         elif action == 'updateCampo':
             myquery = {"id": f'{establecimientoId}', "campos.id": f'{id}'}
@@ -274,7 +275,7 @@ def campo():
             newvalue = {"$set": {"campos.$.status": 'active',
                                  "lastUpdateDate": f'{lastUpdateDate}'}}
             client.capataz.establishment.update_one(myquery, newvalue)
-    
+
     return redirect('/configuracion/establecimiento')
 
 
@@ -300,29 +301,61 @@ def lote():
             creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             l['creationDate'] = creationDate
             myquery = {"id": f'{establecimientoId}', "campos.id": f'{campoId}'}
-            newvalue = {"$push": {"campos.$.lotes": l }}
+            newvalue = {"$push": {"campos.$.lotes": l}}
             client.capataz.establishment.update_one(myquery, newvalue)
         elif action == 'update':
-            myquery = {"id": f'{establecimientoId}', "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
+            myquery = {"id": f'{establecimientoId}',
+                       "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
             newvalue = {"$set": {"campos.$[campo].lotes.$[lote].name": f'{name}',
                                  "lastUpdateDate": f'{lastUpdateDate}'}}
             array_filters = [{"campo.id": f'{campoId}'}, {"lote.id": f'{id}'}]
-            client.capataz.establishment.update_one(myquery, newvalue, array_filters=array_filters)
+            client.capataz.establishment.update_one(
+                myquery, newvalue, array_filters=array_filters)
         elif action == 'deactivate':
-            myquery = {"id": f'{establecimientoId}', "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
+            myquery = {"id": f'{establecimientoId}',
+                       "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
             newvalue = {"$set": {"campos.$[campo].lotes.$[lote].status": 'inactive',
                                  "lastUpdateDate": f'{lastUpdateDate}'}}
             array_filters = [{"campo.id": f'{campoId}'}, {"lote.id": f'{id}'}]
-            client.capataz.establishment.update_one(myquery, newvalue, array_filters=array_filters)
+            client.capataz.establishment.update_one(
+                myquery, newvalue, array_filters=array_filters)
         elif action == 'activate':
-            myquery = {"id": f'{establecimientoId}', "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
+            myquery = {"id": f'{establecimientoId}',
+                       "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
             newvalue = {"$set": {"campos.$[campo].lotes.$[lote].status": 'active',
                                  "lastUpdateDate": f'{lastUpdateDate}'}}
             array_filters = [{"campo.id": f'{campoId}'}, {"lote.id": f'{id}'}]
-            client.capataz.establishment.update_one(myquery, newvalue, array_filters=array_filters)
-
+            client.capataz.establishment.update_one(
+                myquery, newvalue, array_filters=array_filters)
 
     return redirect('/configuracion/establecimiento')
+
+
+@app.route('/map', methods=['GET', 'POST'])
+@login_is_required
+def map():
+    return render_template('map.html', title='Map')
+
+@app.route('/map2', methods=['GET', 'POST'])
+@login_is_required
+def map2():
+    return render_template('map2.html', title='Map2')
+
+@app.route('/get_coordinates', methods=['POST'])
+@login_is_required
+def get_coordinates():
+    lat = request.form.get('lat')
+    lng = request.form.get('lng')    
+    print(f'lat:{lat} | lng:{lng}')
+    return jsonify({'lat': lat, 'lng': lng})
+
+@app.route('/get_polygon_coordinates', methods=['POST'])
+@login_is_required
+def get_polygon_coordinates():
+    coordinates = request.form.get('coordinates')
+    print(f'coordinates:{coordinates}')
+    return jsonify({'coordinates': coordinates})
+
 
 
 if __name__ == '__main__':

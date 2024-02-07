@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<style>
+    #map { height: 800px; }
+</style>
+
+<div class="container">
+    <h1>Map with Leaflet</h1>
+    <div id="map"></div>
+</div>
+
+<script>
+    var map = L.map('map').setView([51.505, -0.09], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var marker;
+
+    map.on('click', function(e) {
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        marker = L.marker(e.latlng).addTo(map);
+        
+        // Send latitude and longitude to Flask endpoint
+        var formData = new FormData();
+        formData.append('lat', e.latlng.lat);
+        formData.append('lng', e.latlng.lng);
+
+        fetch('/get_coordinates', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+
+{% endblock %}
