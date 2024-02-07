@@ -59,25 +59,53 @@
 
         map.on(L.Draw.Event.CREATED, function(event) {
             var layer = event.layer;
-            drawnItems.addLayer(layer);
             
-            // Get coordinates of the polygon
-            var coordinates = layer.getLatLngs()[0].map(function(latlng) {
-                return [latlng.lat, latlng.lng];
-            });
-
-            // Send coordinates to Flask endpoint
+            if (layer instanceof L.Marker) {
+                sendMarkerToServer(layer);
+            } else if (layer instanceof L.Polygon) {
+                sendPolygonToServer(layer);
+            }
+            drawnItems.addLayer(layer);
+        });
+        
+        function sendMarkerToServer(marker) {
+            var coordinates = [marker.getLatLng().lat, marker.getLatLng().lng];
             var formData = new FormData();
             formData.append('coordinates', JSON.stringify(coordinates));
-
-            fetch('/get_polygon_coordinates', {
+            fetch('/map_marker', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => console.log(data))
             .catch(error => console.error('Error:', error));
-        });
+        }
+        
+        function calculatePolygonArea(polygon) {
+            var area = L.GeometryUtil.geodesicArea(polygon.getLatLngs()[0]); // Calculate area in square meters
+            var areaInHectares = area / 10000; // Convert area to hectares
+            return areaInHectares;
+        }
+        
+        function sendPolygonToServer(polygon) {
+            var areaInHectares = calculatePolygonArea(polygon);
+            console.log('Area in hectares:', areaInHectares);
+            
+            var coordinates = polygon.getLatLngs()[0].map(function(latlng) {
+                return [latlng.lat, latlng.lng];
+            });
+            var formData = new FormData();
+            formData.append('coordinates', JSON.stringify(coordinates));
+            formData.append('ha', areaInHectares);
+            fetch('/map_polygon', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+        }
+
     </script>
 
 {% endblock %}

@@ -14,6 +14,6 @@
 - SQLite: https://www.youtube.com/watch?v=byHcYRpMgI4
 - SQLAlchemy: https://www.datacamp.com/tutorial/sqlalchemy-tutorial-examples
 - Green: #198754
-- Leaflet
+- Leaflet JS: https://leafletjs.com/plugins.html
 - OpenStreetMap
 - LeafletMaps https://leaflet-extras.github.io/leaflet-providers/preview/
