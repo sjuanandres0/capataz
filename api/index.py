@@ -335,11 +335,7 @@ def lote():
 @login_is_required
 def map():
     return render_template('map.html', title='Map')
-
-@app.route('/map2', methods=['GET', 'POST'])
-@login_is_required
-def map2():
-    return render_template('map2.html', title='Map2')
+    # return render_template('mapMarker.html', title='Map')
 
 @app.route('/get_coordinates', methods=['POST'])
 @login_is_required
@@ -348,6 +344,7 @@ def get_coordinates():
     lng = request.form.get('lng')    
     print(f'lat:{lat} | lng:{lng}')
     return jsonify({'lat': lat, 'lng': lng})
+
 
 @app.route('/get_polygon_coordinates', methods=['POST'])
 @login_is_required

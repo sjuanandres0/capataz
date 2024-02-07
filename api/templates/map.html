@@ -4,42 +4,80 @@
 {% block content %}
 
 <style>
-    #map { height: 800px; }
+    #map { height: 80vh; }
 </style>
 
-<div class="container">
-    <h1>Map with Leaflet</h1>
+<div class="container-fluid" style="height: 80vh;">
     <div id="map"></div>
 </div>
 
 <script>
-    var map = L.map('map').setView([51.505, -0.09], 13);
+        var map = L.map('map').setView([-32.84478543873638, -61.11837708005918], 13);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    var marker;
-
-    map.on('click', function(e) {
-        if (marker) {
-            map.removeLayer(marker);
-        }
-        marker = L.marker(e.latlng).addTo(map);
+        // Define multiple tile layers
+        var openStreetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+        var openTopoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            maxZoom: 17,
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        });
+        var satelliteGoogleLayer = L.tileLayer('http://{s}.google.com/vt?lyrs=s&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        });
         
-        // Send latitude and longitude to Flask endpoint
-        var formData = new FormData();
-        formData.append('lat', e.latlng.lat);
-        formData.append('lng', e.latlng.lng);
+        satelliteGoogleLayer.addTo(map); // Default layer
 
-        fetch('/get_coordinates', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error:', error));
-    });
-</script>
+        // Create a layer control object and add it to the map
+        var baseLayers = {
+            "Satellite": satelliteGoogleLayer,
+            "Street Map": openStreetLayer,
+            "OpenTopoMap": openTopoLayer
+        };
+
+        L.control.layers(baseLayers).addTo(map);
+        
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        var drawControl = new L.Control.Draw({
+            draw: {
+                polygon: true,
+                polyline: true,
+                rectangle: false,
+                circle: false,
+                marker: true,
+                circlemarker:false
+            },
+            edit: {
+                featureGroup: drawnItems
+            }
+        });
+        map.addControl(drawControl);
+
+        map.on(L.Draw.Event.CREATED, function(event) {
+            var layer = event.layer;
+            drawnItems.addLayer(layer);
+            
+            // Get coordinates of the polygon
+            var coordinates = layer.getLatLngs()[0].map(function(latlng) {
+                return [latlng.lat, latlng.lng];
+            });
+
+            // Send coordinates to Flask endpoint
+            var formData = new FormData();
+            formData.append('coordinates', JSON.stringify(coordinates));
+
+            fetch('/get_polygon_coordinates', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
 
 {% endblock %}
