@@ -22,6 +22,15 @@ app.secret_key = "TukiTukiSecretKey"
 #     password_accepted = [password_accepted]
 #     return password_accepted
 
+def save_t_message(message):
+    m = {
+        'message':message,
+        'date':datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    try:
+        client.capataz.telegram.insert_one(m)
+    except:
+        print('Error saving to telegram.message')
 
 def send_t_message(message):
     bot_id = os.environ.get("bot_id")
@@ -54,14 +63,20 @@ def t_message():
     return jsonify({'message': message, 'response.status_code': response.status_code})
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def home():
     if not session.get('username'):
-        return redirect('/login')
+        return redirect('/login_register')
     return render_template('home.html')
 
+@app.route('/login_register', methods=['GET'])
+def login_register():
+    if session.get('username'):
+        return redirect('/')
+    return render_template('login_register.html')
 
-@app.route('/login', methods=["GET", "POST"])
+
+@app.route('/login', methods=["POST"])
 def login():
     if session.get('username'):
         return redirect('/')
@@ -71,7 +86,7 @@ def login():
         user = client.capataz.user.find_one({'username': input_username})
         if user is None:
             flash(['Username not existing! Register first.', 'danger'])
-            return redirect('/register')
+            return redirect('/login_register')
         else:
             if user and checkpw(input_password.encode('utf-8'), user['password']):
                 flash(['Successfully logged in!', 'success'])
@@ -80,10 +95,10 @@ def login():
                 return redirect('/')
             else:
                 flash(['Incorrect password!', 'danger'])
-    return render_template('login.html', title='Login')
+    return redirect('/login_register')
 
 
-@app.route('/register', methods=["GET", "POST"])
+@app.route('/register', methods=["POST"])
 def register():
     if session.get('name'):
         return redirect('/')
@@ -102,17 +117,17 @@ def register():
         }
         if client.capataz.user.find_one({'username': input_username}) is not None:
             flash(
-                ['Username already registered. Try with a different or Login!', 'warning'])
-            return redirect('/register')
+                ['Username already registered. Try with a different username or Login!', 'warning'])
+            return redirect('/login_register')
         if client.capataz.user.find_one({'email': input_email}) is not None:
             flash(
-                ['Email already registered. Try with a different or Login!', 'warning'])
-            return redirect('/register')
+                ['Email already registered. Try with a different email or Login!', 'warning'])
+            return redirect('/login_register')
         send_t_message(f'New user: {input_username}')
         client.capataz.user.insert_one(u)
         flash(['Successfully registered!', 'success'])
-        return redirect('/login')
-    return render_template('register.html', title='Register')
+        return redirect('/login_register')
+    return redirect('/login_register')
 
 
 @app.route('/logout')

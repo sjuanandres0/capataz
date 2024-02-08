@@ -66,13 +66,17 @@
                 </li>
                 {% else %}
                 <li class="nav-item">
+                    <a class="nav-link {{ active_class('login_register') }}"
+                        aria-current="page" href="/login_register">Acceder</a>
+                </li>
+                <!-- <li class="nav-item">
                     <a class="nav-link {{ active_class('login') }}"
                         aria-current="page" href="/login">Login</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ active_class('register') }}"
                         aria-current="page" href="/register">Register</a>
-                </li>
+                </li> -->
                 {% endif %}
             </ul>
         </div>

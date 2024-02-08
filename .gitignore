@@ -2,3 +2,4 @@
 /ignored
 /api/credentials.py
 /flask_session
+/api/__pycache__
