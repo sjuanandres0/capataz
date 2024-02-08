@@ -32,14 +32,12 @@
 <footer class="footer">
     <div class="footer-column">
         <a href="/">
-            <i class="fa-solid fa-seedling" style="color: #198754;"></i></a>
+            <i class="fa-solid fa-seedling fa-flip" style="color: #198754;--fa-animation-duration: 3s;"></i></a>
     </div>
     <div class="footer-column">
         <small>{{session['name']}} {{session['username']}}</small>
     </div>
-
-    <div class="footer-column empty-column" style="justify-self: end">
-    </div>
+    <div class="footer-column empty-column" style="justify-self: end"></div>
     <div class="footer-column" style="justify-self: end">
         <a href="https://www.instagram.com/" target="_blank"><i
                 class="fa-brands fa-instagram" style="color:#198754"></i></a>
@@ -60,10 +58,8 @@
                 style="color:#198754"></i></a>
     </div>
     <div class="footer-column" style="justify-self: end">
-        <small><a href='/logout'><button type="button" class="btn btn-link"
-                    style="color:#198754"><i
-                        class="fa-solid fa-arrow-right-from-bracket"
-                        style="color:#198754"></i></button></a>
+        <small><a href='/logout' style="color:#198754"></a><i
+                        class="fa-solid fa-arrow-right-from-bracket"></i></a>
         </small>
     </div>
     {% endif %}
