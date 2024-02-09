@@ -1,3 +1,4 @@
+from db import client
 import os
 import sys
 import json
@@ -10,7 +11,6 @@ import requests
 # print(sys.path)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from db import client
 
 app = Flask(__name__)
 app.secret_key = "TukiTukiSecretKey"
@@ -22,15 +22,17 @@ app.secret_key = "TukiTukiSecretKey"
 #     password_accepted = [password_accepted]
 #     return password_accepted
 
+
 def save_t_message(message):
     m = {
-        'message':message,
-        'date':datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        'message': message,
+        'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     try:
         client.capataz.telegram.insert_one(m)
     except:
         print('Error saving to telegram.message')
+
 
 def send_t_message(message):
     bot_id = os.environ.get("bot_id")
@@ -68,6 +70,7 @@ def home():
     if not session.get('username'):
         return redirect('/login_register')
     return render_template('home.html')
+
 
 @app.route('/login_register', methods=['GET'])
 def login_register():
@@ -142,41 +145,42 @@ def about():
     return 'About'
 
 
-# @login_is_required
-# @app.route('/agricultura/cp', methods=['GET', 'POST'])
-# def cp():
-#     if request.method == 'POST':
-#         newCp = {
-#             "id": request.form['id'],
-#             "ctg": request.form['ctg'],
-#             "transport": request.form['tranport'],
-#             "origin": request.form['origin'],
-#             "destination": request.form['destination'],
-#             "km": request.form['km'],
-#             "kg": request.form['kg'],
-#             "type": request.form['type'],
-#             "status": "active",
-#             "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-#         }
-#         print(f'NEW CP: {newCp}')
-#         # db.addNewCpToLocal(newCp)
-#         db.create('cp', newCp)
+@login_is_required
+@app.route('/agricultura/cp', methods=['GET', 'POST'])
+def cp():
+    if request.method == 'POST':
+        newCp = {
+            "id": request.form['id'],
+            "ctg": request.form['ctg'],
+            "transport": request.form['tranport'],
+            "origin": request.form['origin'],
+            "destination": request.form['destination'],
+            "km": request.form['km'],
+            "kg": request.form['kg'],
+            "type": request.form['type'],
+            "status": "active",
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        print(f'NEW CP: {newCp}')
+        # db.addNewCpToLocal(newCp)
+        # db.create('cp', newCp)
 
-#     cp = db.read('cp')
+    # cp = db.read('cp')
+    cp = None
 
-#     # Group data by status
-#     grouped_cp = {}
-#     for item in cp:
-#         status = item["status"]
-#         if status not in grouped_cp:
-#             grouped_cp[status] = []
-#         grouped_cp[status].append(item)
+    # Group data by status
+    grouped_cp = {}
+    for item in cp:
+        status = item["status"]
+        if status not in grouped_cp:
+            grouped_cp[status] = []
+        grouped_cp[status].append(item)
 
-#     params = {
-#         'cp': cp,
-#         'grouped_cp': grouped_cp,
-#     }
-#     return render_template('cp.html', title='Cartas de Porte', params=params)
+    params = {
+        'cp': cp,
+        'grouped_cp': grouped_cp,
+    }
+    return render_template('cp.html', title='Cartas de Porte', params=params)
 
 
 @app.route('/wip')
@@ -273,6 +277,29 @@ def establecimiento():
         'establishment': result
     }
     return render_template('establecimiento.html', title='Establecimiento', params=params)
+
+
+@app.route('/configuracion/<dimension>', methods=['GET', 'POST'])
+@login_is_required
+def configuracion_dimension(dimension):
+    allowed_dimensions = ['transportista', 'chofer', 'destino', 'destinatario']
+    if dimension in allowed_dimensions:
+        collection = client.capataz[dimension]
+        if request.method == 'POST':
+            d = {
+                'name': request.form['name'],
+                'number': request.form['number']
+            }
+            collection.insert_one(d)
+        result = list(collection.find({}, {'_id': 0}))
+        params = {
+            'dimension': dimension,
+            'result': result
+        }
+        title = dimension.capitalize()
+        return render_template('generic_settings_form.html', title=title, params=params)
+    else:
+        return 'Dimension not existing'
 
 
 @app.route('/configuracion/campo', methods=['POST'])
