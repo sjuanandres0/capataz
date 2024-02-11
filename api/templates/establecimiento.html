@@ -37,7 +37,9 @@
                 style="background-color: lightgray;"
                 {% endif %}>
                 <div class="card-body">
-                    <h3 class="card-title"><small style="font-weight: 400;">Establecimiento: </small>{{e.name}}
+                    <h3 class="card-title"><small
+                            style="font-weight: 400;">Establecimiento:
+                        </small>{{e.name}}
                         {% if e.campos|length > 0 and e.status=='active' %}
                         <span
                             class="badge bg-secondary">{{e.campos|length}}</span>
@@ -82,7 +84,9 @@
                                 {% if c.status == 'inactive' %}
                                 style="background-color: lightgray;"
                                 {% endif %}>
-                                <h4 class="card-title"><small style="font-weight: 400;">Campo: </small>{{c.name}}</h4>
+                                <h4 class="card-title"><small
+                                        style="font-weight: 400;">Campo:
+                                    </small>{{c.name}}</h4>
                                 {% if c.status =='active' %}
                                 <button
                                     class="btn btn-outline-success btn-sm my-1"
@@ -119,16 +123,19 @@
                                 <hr>
                                 {% for l in c.lotes %}
                                 <div class="container mt-2" name="lote">
-                                    <div class="card" style="shadow-">
+                                    <div class="card">
                                         <div class="card-body"
                                             {% if l.status == 'inactive'
                                             %}
                                             style="background-color: lightgray;"
                                             {% endif %}>
                                             <h5
-                                                class="card-title"><small style="font-weight: 400;">Lote: </small>{{l.name}}</h5>
-                                            {% if l.status == 'active'
-                                            %}
+                                                class="card-title"><small
+                                                    style="font-weight: 400;">Lote:
+                                                </small>{{l.name}}</h5>
+                                            {% if l.status == 'active' %}
+                                            <p><small>Hectareas:
+                                                </small>{{l.area}}</p>
                                             <button
                                                 class="btn btn-outline-primary btn-sm my-1"
                                                 type="button"
@@ -598,6 +605,20 @@
                             name="nameLote" id="nameLote">
                         <label for="floatingInput">Nombre</label>
                     </div>
+
+                    <div class="input-group mb-1">
+                        <button type="button" class="btn btn-warning"
+                            data-bs-toggle="modal"
+                            data-bs-target="#drawLoteModal">Dibujar
+                            Lote</button>
+                        <input type="hidden" name="geojson" id="geojson">
+                        <div class="form-floating">
+                            <input type="text" class="form-control"
+                                id="area" name="area" required>
+                            <label for="floatingInput">Hectareas</label>
+                        </div>
+                    </div>
+
                     <div class="form-floating mb-1">
                         <input type="text" class="form-control"
                             name="statusLote" id="statusLote" readonly>
@@ -611,6 +632,29 @@
                         class="btn" id="loteSubmitButton">Guardar</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="drawLoteModal" tabindex="-1"
+    aria-labelledby="drawLoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">Dibujar Lote
+            </div>
+            <div class="modal-body p-0">
+                <div id="map" style="height: 100%;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary"
+                    data-bs-target="#loteModal"
+                    data-bs-toggle="modal">Cancelar</button>
+                <button type="button"
+                    data-bs-target="#loteModal"
+                    data-bs-toggle="modal"
+                    class="btn btn-success"
+                    id="loteSubmitButton">Guardar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -685,11 +729,15 @@
     }
 
     function updateLote(action, e,c,l){
+        console.log('UPDATE LOTE: ',l)
         document.getElementById('actionLote').value = action
         document.getElementById('loteEstablecimientoId').value = e.id
         document.getElementById('loteCampoId').value = c.id
         document.getElementById('idLote').value = l.id
         document.getElementById('nameLote').value = l.name
+        // document.getElementById('geojson').value = l.geojson.geometry.coordinates
+        document.getElementById('geojson').value = JSON.stringify(l.geojson)
+        document.getElementById('area').value = l.area
         document.getElementById('loteSubmitButton').className = "btn"
         switch (action){
             case 'deactivate':
@@ -709,18 +757,97 @@
 
     function generateId(prefix) {
         var currentDate = new Date().toISOString().slice(0,10).replace(/-/g,"");
-        // Generate random alphanumeric strings for XXX-XXX and YYY-YYY parts
-        var randomString1 = Array.from({length: 4}, () => Math.random().toString(36)[2]).join('').toUpperCase();
-        var randomString2 = Array.from({length: 4}, () => Math.random().toString(36)[2]).join('').toUpperCase();
-        // Concatenate parts to form the ID
+        var randomString1 = Array.from({length: 3}, () => Math.random().toString(36)[2]).join('');
+        var randomString2 = Array.from({length: 3}, () => Math.random().toString(36)[2]).join('');
         var newId = `${currentDate}_${randomString1}-${randomString2}`;
-        // Add prefix for Campo
         if (prefix) {
             newId = `${prefix}_${newId}`;
         }
         return newId;
     }
 
+
+    // LEAFLET - MAP FUNCTIONALITY
+    var map;
+    var drawnItems = new L.FeatureGroup(); // Initialize a feature group for drawn items
+
+    document.getElementById('drawLoteModal').addEventListener('shown.bs.modal', () => {
+        // if (map) {
+        //    map.remove();
+        //}
+        map = L.map('map').setView([-32.84478543873638, -61.11837708005918], 13);
+        //map = L.map('map').fitWorld();
+        var openStreetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+        var openTopoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            maxZoom: 17,
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        });
+        var satelliteGoogleLayer = L.tileLayer('http://{s}.google.com/vt?lyrs=s&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        satelliteGoogleLayer.addTo(map); // Default layer
+        
+        // Create a layer control object and add it to the map
+        var baseLayers = {
+            "Satellite": satelliteGoogleLayer,
+            "Street Map": openStreetLayer,
+            "OpenTopoMap": openTopoLayer
+        };
+        L.control.layers(baseLayers).addTo(map);
+        
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+        
+        var drawControl = new L.Control.Draw({
+            draw: {
+            polygon: true,
+            polyline: false,
+            rectangle: false,
+            circle: false,
+            marker: false,
+            circlemarker:false
+            },
+            edit: {
+                featureGroup: drawnItems
+            }
+        });
+        map.addControl(drawControl);
+
+        // Parse GeoJSON from the input variable and add polygon to the map
+        var geojsonStr = document.getElementById('geojson').value;
+        if (geojsonStr) {
+            var geojson = JSON.parse(geojsonStr);
+            L.geoJSON(geojson, {
+                onEachFeature: function (feature, layer) {
+                    drawnItems.addLayer(layer);
+                }
+            }).addTo(map);
+        }
+
+        var polygonDrawer = new L.Draw.Polygon(map);
+        polygonDrawer.enable();
+
+        map.on(L.Draw.Event.CREATED, function(event) {
+            var layer = event.layer;
+            document.getElementById('geojson').value = JSON.stringify(layer.toGeoJSON());
+            document.getElementById('area').value = calculatePolygonAreaInHectares(layer);
+            drawnItems.addLayer(layer);
+        });
+    });
+
+    function calculatePolygonAreaInHectares(polygon) {
+        var area = L.GeometryUtil.geodesicArea(polygon.getLatLngs()[0]); 
+        var areaInHectares = (area / 10000).toFixed(2); 
+        return areaInHectares;
+    }
+    
 
 </script>
 

@@ -1,4 +1,3 @@
-from db import client
 import os
 import sys
 import json
@@ -10,6 +9,7 @@ import requests
 
 # print(sys.path)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from db import client
 
 
 app = Flask(__name__)
@@ -355,12 +355,16 @@ def lote():
         id = request.form['idLote']
         name = request.form['nameLote']
         status = request.form['statusLote']
+        area = request.form['area']
+        geojson = json.loads(request.form['geojson'])
         lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         l = {
             'id': id,
             'name': name,
             'status': status,
-            'lastUpdateDate': lastUpdateDate
+            'lastUpdateDate': lastUpdateDate,
+            'area': area,
+            'geojson': geojson
         }
         if action == 'newLote':
             creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -395,6 +399,11 @@ def lote():
 
     return redirect('/configuracion/establecimiento')
 
+
+@app.route('/map_modal', methods=['GET', 'POST'])
+@login_is_required
+def map_modal():
+    return render_template('map_modal.html', title='Map Modal')
 
 @app.route('/map', methods=['GET', 'POST'])
 @login_is_required
