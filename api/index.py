@@ -6,6 +6,7 @@ from flask import Flask, render_template, session, redirect, request, abort, fla
 from bcrypt import hashpw, checkpw, gensalt
 from functools import wraps
 import requests
+from pprint import pprint
 
 # print(sys.path)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -230,6 +231,24 @@ def agricultura():
 def configuracion():
     return render_template('configuracion.html', title='Configuracion')
 
+def acumHas(data):
+    for e in data:
+        eAcum = 0
+        if e['campos']:
+            for c in e['campos']:
+                cAcum = 0
+                try:
+                    for l in c['lotes']:
+                        if l['area']:
+                            cAcum += float(l['area'])
+                        else:
+                            cAcum = 0
+                    c['hasAcum'] = round(cAcum,2)
+                    eAcum += cAcum
+                except:
+                    pass
+            e['hasAcum'] = round(eAcum,2)
+    return data
 
 @app.route('/configuracion/establecimiento', methods=['GET', 'POST'])
 @login_is_required
@@ -272,7 +291,9 @@ def establecimiento():
 
     collection = client.capataz.establishment
     result = list(collection.find({}, {'_id': 0}))
-    print(f'result: {result}')
+    result = acumHas(result)
+    print(f'result:')
+    # pprint(result)
     params = {
         'establishment': result
     }
@@ -355,8 +376,12 @@ def lote():
         id = request.form['idLote']
         name = request.form['nameLote']
         status = request.form['statusLote']
-        area = request.form['area']
-        geojson = json.loads(request.form['geojson'])
+        try:
+            area = request.form['area']
+            geojson = json.loads(request.form['geojson'])
+        except:
+            area = ''
+            geojson = ''
         lastUpdateDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         l = {
             'id': id,
@@ -369,33 +394,45 @@ def lote():
         if action == 'newLote':
             creationDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             l['creationDate'] = creationDate
-            myquery = {"id": f'{establecimientoId}', "campos.id": f'{campoId}'}
+            myquery = {"id": establecimientoId, "campos.id": campoId}
             newvalue = {"$push": {"campos.$.lotes": l}}
             client.capataz.establishment.update_one(myquery, newvalue)
         elif action == 'update':
-            myquery = {"id": f'{establecimientoId}',
-                       "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
-            newvalue = {"$set": {"campos.$[campo].lotes.$[lote].name": f'{name}',
-                                 "lastUpdateDate": f'{lastUpdateDate}'}}
-            array_filters = [{"campo.id": f'{campoId}'}, {"lote.id": f'{id}'}]
+            myquery = {"id": establecimientoId,
+                       "campos.id": campoId, "campos.lotes.id": id}
+            newvalue = {"$set": {
+                        "campos.$[campo].lotes.$[lote].name": name,
+                        "campos.$[campo].lotes.$[lote].geojson": geojson,
+                        "campos.$[campo].lotes.$[lote].area": area,
+                        "lastUpdateDate": lastUpdateDate
+                        }}
+            array_filters = [{"campo.id": campoId}, {"lote.id": id}]
             client.capataz.establishment.update_one(
                 myquery, newvalue, array_filters=array_filters)
         elif action == 'deactivate':
-            myquery = {"id": f'{establecimientoId}',
-                       "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
+            myquery = {"id": establecimientoId,
+                       "campos.id": campoId, "campos.lotes.id": id}
             newvalue = {"$set": {"campos.$[campo].lotes.$[lote].status": 'inactive',
-                                 "lastUpdateDate": f'{lastUpdateDate}'}}
-            array_filters = [{"campo.id": f'{campoId}'}, {"lote.id": f'{id}'}]
+                                 "lastUpdateDate": lastUpdateDate}}
+            array_filters = [{"campo.id": campoId}, {"lote.id": id}]
             client.capataz.establishment.update_one(
                 myquery, newvalue, array_filters=array_filters)
         elif action == 'activate':
-            myquery = {"id": f'{establecimientoId}',
-                       "campos.id": f'{campoId}', "campos.lotes.id": f'{id}'}
+            myquery = {"id": establecimientoId,
+                       "campos.id": campoId, "campos.lotes.id": id}
             newvalue = {"$set": {"campos.$[campo].lotes.$[lote].status": 'active',
-                                 "lastUpdateDate": f'{lastUpdateDate}'}}
-            array_filters = [{"campo.id": f'{campoId}'}, {"lote.id": f'{id}'}]
+                                 "lastUpdateDate": lastUpdateDate}}
+            array_filters = [{"campo.id": campoId}, {"lote.id": id}]
             client.capataz.establishment.update_one(
                 myquery, newvalue, array_filters=array_filters)
+        elif action == 'delete':
+            myquery = {"id": establecimientoId, "campos.id": campoId}
+            update_operation = {
+                "$pull": {
+                    "campos.$.lotes": {"id": id}
+                }
+            }
+            client.capataz.establishment.update_one(myquery, update_operation)
 
     return redirect('/configuracion/establecimiento')
 
@@ -404,6 +441,7 @@ def lote():
 @login_is_required
 def map_modal():
     return render_template('map_modal.html', title='Map Modal')
+
 
 @app.route('/map', methods=['GET', 'POST'])
 @login_is_required

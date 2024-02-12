@@ -19,13 +19,17 @@
 
 <div class="container mx-auto">
     <div class="d-grid gap-1 d-md-flex justify-content-md-end">
-        <button class="btn btn-outline-success btn-sm" type="button"
+        <button type="button" class="btn btn-outline-primary btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#polygonModal">
+            Ver todos los Lotes
+        </button>
+        <button type="button" class="btn btn-outline-success btn-sm"
             data-bs-toggle="modal"
             data-bs-target="#newEstablecimientoModal">Nuevo
             Establecimiento</button>
     </div>
 </div>
-
 <hr>
 
 <div class="container">
@@ -45,6 +49,7 @@
                             class="badge bg-secondary">{{e.campos|length}}</span>
                         {% endif %}
                     </h3>
+                    <p><small>Hectareas: </small>{{e.hasAcum}}</p>
                     <p class="card-body"><small>Creation Date:
                             {{e.creationDate}}<br>Last Update Date:
                             {{e.lastUpdateDate}}</small></p>
@@ -87,6 +92,7 @@
                                 <h4 class="card-title"><small
                                         style="font-weight: 400;">Campo:
                                     </small>{{c.name}}</h4>
+                                <p><small>Hectareas: </small>{{c.hasAcum}}</p>
                                 {% if c.status =='active' %}
                                 <button
                                     class="btn btn-outline-success btn-sm my-1"
@@ -134,8 +140,7 @@
                                                     style="font-weight: 400;">Lote:
                                                 </small>{{l.name}}</h5>
                                             {% if l.status == 'active' %}
-                                            <p><small>Hectareas:
-                                                </small>{{l.area}}</p>
+                                            <p><small>Hectareas: </small>{{l.area}}</p>
                                             <button
                                                 class="btn btn-outline-primary btn-sm my-1"
                                                 type="button"
@@ -159,6 +164,13 @@
                                                 onclick='updateLote("activate",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Activar
                                                 Lote</button>
                                             {% endif %}
+                                            <button
+                                                class="btn btn-outline-secondary btn-sm my-1"
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#loteModal"
+                                                onclick='updateLote("delete",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'><i
+                                                    class="fa-solid fa-trash"></i></button>
                                         </div>
                                     </div>
                                 </div>
@@ -608,13 +620,14 @@
 
                     <div class="input-group mb-1">
                         <button type="button" class="btn btn-warning"
+                            id="drawLoteButton"
                             data-bs-toggle="modal"
                             data-bs-target="#drawLoteModal">Dibujar
                             Lote</button>
                         <input type="hidden" name="geojson" id="geojson">
                         <div class="form-floating">
                             <input type="text" class="form-control"
-                                id="area" name="area" required>
+                                id="area" name="area" required readonly>
                             <label for="floatingInput">Hectareas</label>
                         </div>
                     </div>
@@ -636,6 +649,7 @@
     </div>
 </div>
 
+<!-- Modal Draw Polygon -->
 <div class="modal fade" id="drawLoteModal" tabindex="-1"
     aria-labelledby="drawLoteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog modal-fullscreen">
@@ -654,6 +668,23 @@
                     data-bs-toggle="modal"
                     class="btn btn-success"
                     id="loteSubmitButton">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Render All Polygons -->
+<div class="modal fade" id="polygonModal" tabindex="-1"
+    aria-labelledby="polygonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">Ver Lotes</div>
+            <div class="modal-body p-0">
+                <div id="mapAll" style="height: 100%"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary"
+                    data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -689,8 +720,7 @@
         document.getElementById('activateId').value = e.id
         document.getElementById('activateName').value = e.name
         document.getElementById('activateStatus').value = 'active'
-    }
-    
+    }    
 
     function newCampo(e){
         document.getElementById('newCampoEstablecimientoId').value = e.id
@@ -724,7 +754,10 @@
         document.getElementById('loteEstablecimientoId').value = e.id
         document.getElementById('loteCampoId').value = c.id
         document.getElementById('idLote').value = generateId(e.id + '_' + c.id)
+        document.getElementById('nameLote').value = ''
         document.getElementById('statusLote').value = 'active'
+        document.getElementById('geojson').value = ''
+        document.getElementById('area').value = ''
         document.getElementById('loteSubmitButton').classList.add('btn-success')
     }
 
@@ -735,22 +768,29 @@
         document.getElementById('loteCampoId').value = c.id
         document.getElementById('idLote').value = l.id
         document.getElementById('nameLote').value = l.name
-        // document.getElementById('geojson').value = l.geojson.geometry.coordinates
         document.getElementById('geojson').value = JSON.stringify(l.geojson)
         document.getElementById('area').value = l.area
         document.getElementById('loteSubmitButton').className = "btn"
         switch (action){
             case 'deactivate':
+            document.getElementById('drawLoteButton').disabled = true;
             document.getElementById('statusLote').value = 'inactive'
             document.getElementById('loteSubmitButton').classList.add('btn-danger')
             break;
             case 'activate':
+            document.getElementById('drawLoteButton').disabled = true;
             document.getElementById('statusLote').value = 'active'
             document.getElementById('loteSubmitButton').classList.add('btn-success')
             break;
             case 'update':
+            document.getElementById('drawLoteButton').disabled = false;
             document.getElementById('statusLote').value = 'active'
             document.getElementById('loteSubmitButton').classList.add('btn-primary')
+            break;
+            case 'delete':
+            document.getElementById('drawLoteButton').disabled = true;
+            document.getElementById('statusLote').value = 'active'
+            document.getElementById('loteSubmitButton').classList.add('btn-danger')
             break;
         }
     }
@@ -772,11 +812,11 @@
     var drawnItems = new L.FeatureGroup(); // Initialize a feature group for drawn items
 
     document.getElementById('drawLoteModal').addEventListener('shown.bs.modal', () => {
-        // if (map) {
-        //    map.remove();
-        //}
+        if (map) {
+            map.remove();
+        }
         map = L.map('map').setView([-32.84478543873638, -61.11837708005918], 13);
-        //map = L.map('map').fitWorld();
+        //map = L.map('map')
         var openStreetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -789,16 +829,13 @@
             maxZoom: 20,
             subdomains:['mt0','mt1','mt2','mt3']
         });
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
         satelliteGoogleLayer.addTo(map); // Default layer
         
         // Create a layer control object and add it to the map
         var baseLayers = {
-            "Satellite": satelliteGoogleLayer,
-            "Street Map": openStreetLayer,
-            "OpenTopoMap": openTopoLayer
+            "Satellite": satelliteGoogleLayer
+            ,"Street Map": openStreetLayer
+            ,"OpenTopoMap": openTopoLayer
         };
         L.control.layers(baseLayers).addTo(map);
         
@@ -820,20 +857,33 @@
         });
         map.addControl(drawControl);
 
-        // Parse GeoJSON from the input variable and add polygon to the map
-        var geojsonStr = document.getElementById('geojson').value;
-        if (geojsonStr) {
-            var geojson = JSON.parse(geojsonStr);
-            L.geoJSON(geojson, {
-                onEachFeature: function (feature, layer) {
-                    drawnItems.addLayer(layer);
+        var actionSelected = document.getElementById('actionLote').value
+        var loteCampoId = document.getElementById('loteCampoId').value
+        if (actionSelected != 'newLote'){
+            // Parse GeoJSON from the input variable and add polygon to the map
+            var geojsonStr = document.getElementById('geojson').value;
+            if (geojsonStr) {
+                try {
+                    var geojson = JSON.parse(geojsonStr);
+                    var layer = L.geoJSON(geojson, {
+                        onEachFeature: function (feature, layer) {
+                            drawnItems.addLayer(layer);
+                        }
+                    }).addTo(map);
+                    var bounds = layer.getBounds();
+                    var center = bounds.getCenter();
+                    map.setView(center, 13);
+                } catch (error) {
+                    console.error('Error parsing GeoJSON',error);
                 }
-            }).addTo(map);
+            }
+            // TODO: Programmatically enable edit functionality of the added layer
+        } else {
+            var polygonDrawer = new L.Draw.Polygon(map);
+            polygonDrawer.enable();
+            setCampoView(loteCampoId);
         }
-
-        var polygonDrawer = new L.Draw.Polygon(map);
-        polygonDrawer.enable();
-
+       
         map.on(L.Draw.Event.CREATED, function(event) {
             var layer = event.layer;
             document.getElementById('geojson').value = JSON.stringify(layer.toGeoJSON());
@@ -848,6 +898,75 @@
         return areaInHectares;
     }
     
+
+
+    function setCampoView(selectedCampoId){
+        // Set the view to nearby area
+        var lotesFound = false;
+        var bounds = L.latLngBounds();
+        params.establishment.forEach(e => {
+            e.campos.forEach(campo => {
+                if(campo.id===selectedCampoId){
+                    if(campo.lotes){
+                        campo.lotes.forEach(lote => {
+                            var layer = L.geoJSON(lote.geojson,{
+                                onEachFeature: function (feature,layer){
+                                    bounds.extend(layer.getBounds());
+                                    lotesFound = true
+                                }
+                            })
+                        })
+                    }
+                }
+            })
+        })
+        if(lotesFound){
+            map.fitBounds(bounds);
+        }
+    }
+
+    var mapAll;
+
+    // Function to render polygons in modal
+    function renderPolygonsInModal(data) {
+        // Remove existing map instance if it exists
+        if (mapAll) {
+            mapAll.remove();
+        }
+
+        // Create a new map instance
+        mapAll = L.map('mapAll');
+        var satelliteGoogleLayer = L.tileLayer('http://{s}.google.com/vt?lyrs=s&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        });
+        satelliteGoogleLayer.addTo(mapAll);
+        var bounds = L.latLngBounds();
+
+        // Iterate over each "establecimiento" in the data
+        data.forEach(establecimiento => {
+            establecimiento.campos.forEach(campo => {
+                campo.lotes.forEach(lote => {
+                    var label = `${lote.name} ${lote.area} has (Campo: ${campo.name})`
+                    var layer = L.geoJSON(lote.geojson, {
+                        onEachFeature: function (feature, layer) {
+                            // Add the polygon to the map
+                            drawnItems.addLayer(layer);
+                            bounds.extend(layer.getBounds());
+                        }
+                    }).bindTooltip(label, { permanent: true, direction: "center" }).openTooltip().addTo(mapAll);
+                });
+            });
+        });
+        mapAll.fitBounds(bounds);
+    }
+    
+    // Attach event listener to modal show event to render polygons
+    document.getElementById('polygonModal').addEventListener('shown.bs.modal', () => {
+        renderPolygonsInModal(params.establishment);
+    });
+    
+
 
 </script>
 
