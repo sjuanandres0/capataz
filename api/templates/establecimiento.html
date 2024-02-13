@@ -161,7 +161,6 @@
                             {% endif %}
 
                             {% if c.status == 'active' %}
-                            <hr>
                             {% for l in c.lotes %}
                             <div class="container mt-2" name="lote">
                                 <div class="card">
@@ -175,56 +174,60 @@
                                                 style="font-weight: 400;">Lote:
                                             </small>{{l.name}}</h5>
                                         {% if l.status == 'active' %}
-                                        <p><small>Hectareas:
-                                            </small>{{l.area}}</p>
-                                        <button
-                                            class="btn btn-outline-primary btn-sm my-1"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#loteModal"
-                                            onclick='updateLote("update",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Editar
-                                            Lote</button>
-                                        <button
-                                            class="btn btn-outline-danger btn-sm my-1"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#loteModal"
-                                            onclick='updateLote("deactivate",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Desactivar
-                                            Lote</button>
-                                        {% else %}
-                                        <button
-                                            class="btn btn-outline-success btn-sm my-1"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#loteModal"
-                                            onclick='updateLote("activate",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Activar
-                                            Lote</button>
-                                        {% endif %}
-                                        <button
-                                            class="btn btn-outline-secondary btn-sm my-1"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#loteModal"
-                                            onclick='updateLote("delete",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'><i
-                                                class="fa-solid fa-trash"></i></button>
+                                        <p><small>Hectareas: </small>{{l.area}}</p>
+                                        <div class="btn-group" role="group"
+                                            aria-label="Basic mixed styles example">
+                                            <button
+                                                class="btn btn-primary btn-sm"
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#loteModal"
+                                                onclick='updateLote("update",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Editar
+                                                Lote</button>
+                                            <button
+                                                class="btn btn-danger btn-sm"
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#loteModal"
+                                                onclick='updateLote("deactivate",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Desactivar
+                                                Lote</button>
+                                            {% else %}
+                                            <button
+                                                class="btn btn-success btn-sm"
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#loteModal"
+                                                onclick='updateLote("activate",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Activar
+                                                Lote</button>
+                                            {% endif %}
+                                            <button
+                                                class="btn btn-secondary btn-sm"
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#loteModal"
+                                                onclick='updateLote("delete",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'><i
+                                                    class="fa-solid fa-trash"></i></button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             {% endfor %}
                             {% endif %}
+                            <!-- Closing Lote -->
 
                         </div>
-                    </div>
 
-                </div>
-                {% endfor %}
-                {% endif %}
+                    </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    <!-- Closing Campo -->
 
             </div>
         </div>
-
     </div>
     {% endfor %}
+    <!-- Closing Establecimiento -->
 </div>
 
 <!-- newEstablecimientoModal -->
