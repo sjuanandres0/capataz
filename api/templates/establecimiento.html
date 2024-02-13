@@ -30,11 +30,29 @@
             Establecimiento</button>
     </div>
 </div>
+
 <hr>
 
-<div class="container">
-    <div class="row">
+<div class="container mx-auto">
+    <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
         {% for e in params.establishment %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if loop.index ==1 %}active{% endif %}"
+                id="{{e.id}}-tab"
+                data-bs-toggle="pill" data-bs-target="#{{e.id}}"
+                type="button" role="tab" aria-controls="{{e.id}}"
+                aria-selected="false">{{e.name}}</button>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<hr>
+
+<div class="tab-content" id="pills-tabContent">
+    {% for e in params.establishment %}
+    <div class="tab-pane fade {% if loop.index ==1 %}show active{% endif %}" id="{{e.id}}" role="tabpanel"
+        aria-labelledby="{{e.id}}-tab" tabindex="0">
         <div class="col-12 mb-4" name="establecimiento">
             <div class="card text-center shadow"
                 {% if e.status == 'inactive' %}
@@ -56,7 +74,8 @@
                     {% if e.status == 'active' %}
                     <button class="btn btn-outline-success btn-sm my-1"
                         type="button"
-                        data-bs-toggle="modal" data-bs-target="#newCampoModal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#newCampoModal"
                         onclick='newCampo({{e|tojson|safe}})'>Nuevo
                         Campo</button>
                     <button class="btn btn-outline-primary btn-sm my-1"
@@ -92,7 +111,8 @@
                                 <h4 class="card-title"><small
                                         style="font-weight: 400;">Campo:
                                     </small>{{c.name}}</h4>
-                                <p><small>Hectareas: </small>{{c.hasAcum}}</p>
+                                <p><small>Hectareas:
+                                    </small>{{c.hasAcum}}</p>
                                 {% if c.status =='active' %}
                                 <button
                                     class="btn btn-outline-success btn-sm my-1"
@@ -140,7 +160,8 @@
                                                     style="font-weight: 400;">Lote:
                                                 </small>{{l.name}}</h5>
                                             {% if l.status == 'active' %}
-                                            <p><small>Hectareas: </small>{{l.area}}</p>
+                                            <p><small>Hectareas:
+                                                </small>{{l.area}}</p>
                                             <button
                                                 class="btn btn-outline-primary btn-sm my-1"
                                                 type="button"
@@ -187,8 +208,8 @@
                 </div>
             </div>
         </div>
-        {% endfor %}
     </div>
+    {% endfor %}
 </div>
 
 <!-- newEstablecimientoModal -->
