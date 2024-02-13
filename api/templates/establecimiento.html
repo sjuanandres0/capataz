@@ -3,6 +3,22 @@
 
 {% block content %}
 
+<style>
+    .nav-pills .nav-item .nav-link {
+        background-color: var(--bs-light);
+        color: var(--bs-success);
+    }
+    
+    .nav-pills .nav-item .nav-link.active {
+        background-color: var(--bs-success);
+        color: var(--bs-light);
+    }
+    
+    p {
+        margin-bottom: 0px;
+    }
+</style>
+
 <div class="container mb-3">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -51,163 +67,162 @@
 
 <div class="tab-content" id="pills-tabContent">
     {% for e in params.establishment %}
-    <div class="tab-pane fade {% if loop.index ==1 %}show active{% endif %}" id="{{e.id}}" role="tabpanel"
+    <div class="tab-pane fade {% if loop.index ==1 %}show active{% endif %}"
+        id="{{e.id}}" role="tabpanel"
         aria-labelledby="{{e.id}}-tab" tabindex="0">
+
         <div class="col-12 mb-4" name="establecimiento">
-            <div class="card text-center shadow"
+            <div class="container text-center"
                 {% if e.status == 'inactive' %}
                 style="background-color: lightgray;"
                 {% endif %}>
-                <div class="card-body">
-                    <h3 class="card-title"><small
-                            style="font-weight: 400;">Establecimiento:
-                        </small>{{e.name}}
-                        {% if e.campos|length > 0 and e.status=='active' %}
-                        <span
-                            class="badge bg-secondary">{{e.campos|length}}</span>
-                        {% endif %}
-                    </h3>
-                    <p><small>Hectareas: </small>{{e.hasAcum}}</p>
-                    <p class="card-body"><small>Creation Date:
-                            {{e.creationDate}}<br>Last Update Date:
-                            {{e.lastUpdateDate}}</small></p>
-                    {% if e.status == 'active' %}
-                    <button class="btn btn-outline-success btn-sm my-1"
-                        type="button"
-                        data-bs-toggle="modal"
-                        data-bs-target="#newCampoModal"
-                        onclick='newCampo({{e|tojson|safe}})'>Nuevo
-                        Campo</button>
-                    <button class="btn btn-outline-primary btn-sm my-1"
-                        type="button"
-                        data-bs-toggle="modal"
-                        data-bs-target="#updateEstablecimientoModal"
-                        onclick='updateEstablecimiento({{e|tojson|safe}})'>Editar
-                        Estab.</button>
-                    <button class="btn btn-outline-danger btn-sm my-1"
-                        type="button"
-                        data-bs-toggle="modal"
-                        data-bs-target="#deactivateEstablecimientoModal"
-                        onclick='deactivateEstablecimiento({{e|tojson|safe}})'>Desactivar
-                        Estab.</button>
-                    {% else %}
-                    <button class="btn btn-outline-success btn-sm my-1"
-                        type="button"
-                        data-bs-toggle="modal"
-                        data-bs-target="#activateEstablecimientoModal"
-                        onclick='activateEstablecimiento({{e|tojson|safe}})'>Activar
-                        Estab.</button>
+                <h3><small
+                        style="font-weight: 400;">Establecimiento:
+                    </small>{{e.name}}
+                    {% if e.campos|length > 0 and e.status=='active' %}
                     {% endif %}
+                </h3>
+                <p><small>Campos: </small>{{e.campos|length}}</p>
+                <p><small>Hectareas: </small>{{e.hasAcum}}</p>
+                <p><small>Creation Date: {{e.creationDate}}</small></p>
+                <p>Last Update Date: {{e.lastUpdateDate}}</small></p>
+                {% if e.status == 'active' %}
+                <button class="btn btn-outline-success btn-sm my-1"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#newCampoModal"
+                    onclick='newCampo({{e|tojson|safe}})'>Nuevo
+                    Campo</button>
+                <button class="btn btn-outline-primary btn-sm my-1"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#updateEstablecimientoModal"
+                    onclick='updateEstablecimiento({{e|tojson|safe}})'>Editar
+                    Estab.</button>
+                <button class="btn btn-outline-danger btn-sm my-1"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deactivateEstablecimientoModal"
+                    onclick='deactivateEstablecimiento({{e|tojson|safe}})'>Desactivar
+                    Estab.</button>
+                {% else %}
+                <button class="btn btn-outline-success btn-sm my-1"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#activateEstablecimientoModal"
+                    onclick='activateEstablecimiento({{e|tojson|safe}})'>Activar
+                    Estab.</button>
+                {% endif %}
 
-                    {% if e.status == 'active' %}
-                    <hr>
-                    {% for c in e.campos %}
-                    <div class="container my-4 mx-0" name="campo">
-                        <div class="card text-center shadow-sm">
-                            <div class="card-body"
-                                {% if c.status == 'inactive' %}
-                                style="background-color: lightgray;"
-                                {% endif %}>
-                                <h4 class="card-title"><small
-                                        style="font-weight: 400;">Campo:
-                                    </small>{{c.name}}</h4>
-                                <p><small>Hectareas:
-                                    </small>{{c.hasAcum}}</p>
-                                {% if c.status =='active' %}
-                                <button
-                                    class="btn btn-outline-success btn-sm my-1"
-                                    type="button"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#loteModal"
-                                    onclick='newLote({{e|tojson|safe}},{{c|tojson|safe}})'>Nuevo
-                                    Lote</button>
-                                <button
-                                    class="btn btn-outline-primary btn-sm my-1"
-                                    type="button"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#updateCampoModal"
-                                    onclick='updateCampo({{e|tojson|safe}},{{c|tojson|safe}})'>Editar
-                                    Campo</button>
-                                <button
-                                    class="btn btn-outline-danger btn-sm my-1"
-                                    type="button"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deactivateCampoModal"
-                                    onclick='deactivateCampo({{e|tojson|safe}},{{c|tojson|safe}})'>Desactivar
-                                    Campo</button>
-                                {% else %}
-                                <button
-                                    class="btn btn-outline-success btn-sm my-1"
-                                    type="button"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#activateCampoModal"
-                                    onclick='activateCampo({{e|tojson|safe}},{{c|tojson|safe}})'>Activar
-                                    Campo</button>
-                                {% endif %}
+                {% if e.status == 'active' %}
+                <hr>
+                {% for c in e.campos %}
+                <div class="container my-4 mx-0" name="campo">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body"
+                            {% if c.status == 'inactive' %}
+                            style="background-color: lightgray;"
+                            {% endif %}>
+                            <h4 class="card-title"><small
+                                    style="font-weight: 400;">Campo:
+                                </small>{{c.name}}</h4>
+                            <p><small>Hectareas:
+                                </small>{{c.hasAcum}}</p>
+                            {% if c.status =='active' %}
+                            <button
+                                class="btn btn-outline-success btn-sm my-1"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#loteModal"
+                                onclick='newLote({{e|tojson|safe}},{{c|tojson|safe}})'>Nuevo
+                                Lote</button>
+                            <button
+                                class="btn btn-outline-primary btn-sm my-1"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#updateCampoModal"
+                                onclick='updateCampo({{e|tojson|safe}},{{c|tojson|safe}})'>Editar
+                                Campo</button>
+                            <button
+                                class="btn btn-outline-danger btn-sm my-1"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deactivateCampoModal"
+                                onclick='deactivateCampo({{e|tojson|safe}},{{c|tojson|safe}})'>Desactivar
+                                Campo</button>
+                            {% else %}
+                            <button
+                                class="btn btn-outline-success btn-sm my-1"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#activateCampoModal"
+                                onclick='activateCampo({{e|tojson|safe}},{{c|tojson|safe}})'>Activar
+                                Campo</button>
+                            {% endif %}
 
-                                {% if c.status == 'active' %}
-                                <hr>
-                                {% for l in c.lotes %}
-                                <div class="container mt-2" name="lote">
-                                    <div class="card">
-                                        <div class="card-body"
-                                            {% if l.status == 'inactive'
-                                            %}
-                                            style="background-color: lightgray;"
-                                            {% endif %}>
-                                            <h5
-                                                class="card-title"><small
-                                                    style="font-weight: 400;">Lote:
-                                                </small>{{l.name}}</h5>
-                                            {% if l.status == 'active' %}
-                                            <p><small>Hectareas:
-                                                </small>{{l.area}}</p>
-                                            <button
-                                                class="btn btn-outline-primary btn-sm my-1"
-                                                type="button"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#loteModal"
-                                                onclick='updateLote("update",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Editar
-                                                Lote</button>
-                                            <button
-                                                class="btn btn-outline-danger btn-sm my-1"
-                                                type="button"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#loteModal"
-                                                onclick='updateLote("deactivate",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Desactivar
-                                                Lote</button>
-                                            {% else %}
-                                            <button
-                                                class="btn btn-outline-success btn-sm my-1"
-                                                type="button"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#loteModal"
-                                                onclick='updateLote("activate",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Activar
-                                                Lote</button>
-                                            {% endif %}
-                                            <button
-                                                class="btn btn-outline-secondary btn-sm my-1"
-                                                type="button"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#loteModal"
-                                                onclick='updateLote("delete",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'><i
-                                                    class="fa-solid fa-trash"></i></button>
-                                        </div>
+                            {% if c.status == 'active' %}
+                            <hr>
+                            {% for l in c.lotes %}
+                            <div class="container mt-2" name="lote">
+                                <div class="card">
+                                    <div class="card-body"
+                                        {% if l.status == 'inactive'
+                                        %}
+                                        style="background-color: lightgray;"
+                                        {% endif %}>
+                                        <h5
+                                            class="card-title"><small
+                                                style="font-weight: 400;">Lote:
+                                            </small>{{l.name}}</h5>
+                                        {% if l.status == 'active' %}
+                                        <p><small>Hectareas:
+                                            </small>{{l.area}}</p>
+                                        <button
+                                            class="btn btn-outline-primary btn-sm my-1"
+                                            type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#loteModal"
+                                            onclick='updateLote("update",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Editar
+                                            Lote</button>
+                                        <button
+                                            class="btn btn-outline-danger btn-sm my-1"
+                                            type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#loteModal"
+                                            onclick='updateLote("deactivate",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Desactivar
+                                            Lote</button>
+                                        {% else %}
+                                        <button
+                                            class="btn btn-outline-success btn-sm my-1"
+                                            type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#loteModal"
+                                            onclick='updateLote("activate",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'>Activar
+                                            Lote</button>
+                                        {% endif %}
+                                        <button
+                                            class="btn btn-outline-secondary btn-sm my-1"
+                                            type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#loteModal"
+                                            onclick='updateLote("delete",{{e|tojson|safe}},{{c|tojson|safe}},{{l|tojson|safe}})'><i
+                                                class="fa-solid fa-trash"></i></button>
                                     </div>
                                 </div>
-                                {% endfor %}
-                                {% endif %}
-
                             </div>
-                        </div>
+                            {% endfor %}
+                            {% endif %}
 
+                        </div>
                     </div>
-                    {% endfor %}
-                    {% endif %}
 
                 </div>
+                {% endfor %}
+                {% endif %}
+
             </div>
         </div>
+
     </div>
     {% endfor %}
 </div>
