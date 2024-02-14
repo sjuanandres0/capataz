@@ -5,19 +5,14 @@
 {% block content %}
 
 <style>
-    .nav-pills .nav-link {color: darkgreen;}
-    .nav-pills .nav-link.active {background-color:#198754};
-    .list-group-item {
-        background-color: white;
+    .nav-pills .nav-item .nav-link {
+        background-color: var(--bs-light);
+        color: var(--bs-success);
     }
-
-    /* Target the active list-group-item and set its background color */
-    .list-group-item.active {
-        background-color: #198754;
-        color: white; /* Set text color to white for better visibility */
-        border-color: #198754;
+    .nav-pills .nav-item .nav-link.active {
+        background-color: var(--bs-success);
+        color: var(--bs-light);
     }
-
 </style>
 
 <div class="container mb-3">
@@ -35,11 +30,9 @@
 
 <div class="container mx-auto">
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <button class="btn btn-outline-warning" type="button"
+        <button class="btn btn-outline-warning btn-sm" type="button"
             data-bs-toggle="modal" data-bs-target="#newCpModal">Nueva
             CP</button>
-        <!-- <button class="btn btn-outline-success" type="button"
-            data-bs-toggle="modal" data-bs-target="#newCpModal">Test</button> -->
     </div>
 </div>
 
@@ -56,42 +49,42 @@
             </div>
             <form method="POST">
                 <div class="modal-body">
-
                     <div class="form-floating mb-1">
                         <input type="number" class="form-control" name="id"
-                            placeholder="55123456" min=1>
+                            placeholder="55123456" min=1 required>
                         <label for="floatingInput">Numero</label>
                     </div>
                     <div class="form-floating mb-1">
                         <input type="number" class="form-control" name="ctg"
-                            placeholder="1234890" min=1>
+                            placeholder="1234890" min=1 required>
                         <label for="floatingInput">Codigo de Trazabilidad de
                             Granos (CTG)</label>
                     </div>
                     <div class="form-floating mb-1">
                         <select class="form-select" name="tranport"
-                            aria-label="Floating label select example">
-                            <option selected>Seleccione transportista</option>
-                            <option value="Marcelo">Marcelo</option>
-                            <option value="Roberto">Roberto</option>
-                            <option value="Cristian">Cristian</option>
+                            aria-label="Floating label select example" required>
+                            <option value>Seleccione transportista</option>
+                            {% for t in params.transportista %}
+                            <option value="{{t.number}}">{{t.name}}
+                                ({{t.number}})</option>
+                            {% endfor %}
                         </select>
                         <label for="floatingSelect">Transportista</label>
                     </div>
                     <div class="form-floating mb-1">
                         <select class="form-select" name="type"
-                            aria-label="Floating label select example">
-                            <option selected>Seleccione especie</option>
-                            <option value="Trigo">Trigo</option>
-                            <option value="Soja">Soja</option>
-                            <option value="Maiz">Maiz</option>
+                            aria-label="Floating label select example" required>
+                            <option value>Seleccione especie</option>
+                            {% for e in params.especie %}
+                            <option value="{{e.name}}">{{e.name}}</option>
+                            {% endfor %}
                         </select>
                         <label for="floatingSelect">Especie</label>
                     </div>
                     <div class="form-floating mb-1">
                         <select class="form-select" name="origin"
-                            aria-label="Floating label select example">
-                            <option selected>Seleccione origen</option>
+                            aria-label="Floating label select example" required>
+                            <option value>Seleccione origen</option>
                             <option value="Lucio V Lopez">Lucio V Lopez</option>
                             <option value="Los Pinos">Los Pinos</option>
                             <option value="El Escondido">El Escondido</option>
@@ -100,8 +93,8 @@
                     </div>
                     <div class="form-floating mb-1">
                         <select class="form-select" name="destination"
-                            aria-label="Floating label select example">
-                            <option selected>Seleccione destino</option>
+                            aria-label="Floating label select example" required>
+                            <option value>Seleccione destino</option>
                             <option value="Bunge">Bunge</option>
                             <option value="Cargill">Cargill</option>
                             <option value="Alfagro">Alfagro</option>
@@ -110,12 +103,12 @@
                     </div>
                     <div class="form-floating mb-1">
                         <input type="number" class="form-control" name="km"
-                            placeholder="250" min=1 max=5000>
+                            placeholder="250" min=1 max=5000 required>
                         <label for="floatingInput">Kilometros</label>
                     </div>
                     <div class="form-floating mb-1">
                         <input type="number" class="form-control" name="kg"
-                            placeholder="29500" min=1 max=40000>
+                            placeholder="29500" min=1 max=40000 required>
                         <label for="floatingInput">Kilogramos</label>
                     </div>
 
@@ -129,6 +122,34 @@
             </form>
         </div>
     </div>
+</div>
+
+<hr>
+
+<div class="container mx-auto">
+    <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
+        {% for status, items in params.grouped_cp.items() %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if loop.index == 1 %}active{% endif %}"
+                id="{{ status }}-tab"
+                data-bs-toggle="pill" data-bs-target="#{{ status }}"
+                type="button" role="tab" aria-controls="{{ status }}"
+                aria-selected="{% if loop.index == 1 %}true{% else %}false{% endif %}">
+                {{loop.index}} {{ status }}
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="tab-content" id="pills-tabContent">
+    {% for status, items in params.grouped_cp.items() %}
+    <div class="tab-pane fade {% if loop.index == 1 %}show active{% endif %}"
+        id="{{ status }}" role="tabpanel"
+        aria-labelledby="{{ status }}-tab" tabindex="0">
+        <p>{{loop.index}} {{ status }} - {{ items }}</p>
+    </div>
+    {% endfor %}
 </div>
 
 <hr>
@@ -147,7 +168,7 @@
             name="statusButton"
             onclick="selectStatus('active')"
             {% if params.grouped_cp['active'] | length == 0 %}
-            disabledD
+            disabled
             {% endif %}>Activas <span
                 class="badge text-bg-secondary">{{params.grouped_cp['active'] |
                 length}}</span></button>
@@ -181,8 +202,9 @@
 
 <hr>
 
+{% if params.cp | length > 0 %}
 {% for cp in params.cp %}
-<div class="container mx-auto my-2" id={{cp.id}} name="cpContainer"
+<div class="container shadow" id={{cp.id}} name="cpContainer"
     style="display: none;">
     <ul class="list-group">
         <li class="list-group-item active" aria-current="true">Numero CP:
@@ -198,6 +220,7 @@
     </ul>
 </div>
 {% endfor %}
+{% endif %}
 
 <script>
     const params = {{ params| tojson }}
@@ -206,7 +229,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementsByName('statusButton')[0].click()
     })
-    
     
     const cpContainers = document.getElementsByName('cpContainer')
     const statusContainers = document.getElementsByName('statusContainer')

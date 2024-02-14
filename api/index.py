@@ -16,13 +16,6 @@ from db import client
 app = Flask(__name__)
 app.secret_key = "TukiTukiSecretKey"
 
-# def getPasswordAccepted():
-#     password_accepted = os.environ.get("password_accepted")
-#     if password_accepted is None:
-#         from credentials import password_accepted
-#     password_accepted = [password_accepted]
-#     return password_accepted
-
 
 def save_t_message(message):
     m = {
@@ -42,6 +35,8 @@ def send_t_message(message):
         from credentials import bot_id, chat_id
     api_url = f'https://api.telegram.org/bot{bot_id}/sendMessage?chat_id={chat_id}&text={message}&parse_mode=HTML'
     response = requests.get(api_url)
+    if response.status_code==200:
+        save_t_message(message)
     return response
 
 
@@ -58,7 +53,6 @@ def login_is_required(view_func):
 @app.route('/t_message', methods=['GET', 'POST'])
 @login_is_required
 def t_message():
-    # message = 'Hello, this is a test'
     message = request.args.get('m')
     if message is None:
         message = 'No message was passed to argument m'
@@ -163,24 +157,36 @@ def cp():
             "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         print(f'NEW CP: {newCp}')
-        # db.addNewCpToLocal(newCp)
-        # db.create('cp', newCp)
+        # TODO: validate input and unique id/ctg
+        client.capataz.cp.insert_one(newCp)
 
-    # cp = db.read('cp')
-    cp = None
+    cp = list(client.capataz.cp.find({}, {'_id': 0}))
+    tranportista = list(client.capataz.transportista.find({}, {'_id': 0}))
+    especie = list(client.capataz.especie.find({}, {'_id': 0}))
+    chofer = None
+    destino = None
+    destinatario = None
 
     # Group data by status
     grouped_cp = {}
-    for item in cp:
-        status = item["status"]
-        if status not in grouped_cp:
-            grouped_cp[status] = []
-        grouped_cp[status].append(item)
+    if cp:
+        for item in cp:
+            status = item["status"]
+            if status not in grouped_cp:
+                grouped_cp[status] = []
+            grouped_cp[status].append(item)
 
     params = {
         'cp': cp,
         'grouped_cp': grouped_cp,
+        'transportista': tranportista,
+        'chofer': chofer,
+        'destino': destino,
+        'destinatario': destinatario,
+        'especie': especie,
     }
+    pprint('PARAMS:')
+    pprint(params)
     return render_template('cp.html', title='Cartas de Porte', params=params)
 
 
@@ -231,6 +237,7 @@ def agricultura():
 def configuracion():
     return render_template('configuracion.html', title='Configuracion')
 
+
 def acumHas(data):
     for e in data:
         eAcum = 0
@@ -243,12 +250,13 @@ def acumHas(data):
                             cAcum += float(l['area'])
                         else:
                             cAcum = 0
-                    c['hasAcum'] = round(cAcum,2)
+                    c['hasAcum'] = round(cAcum, 2)
                     eAcum += cAcum
                 except:
                     pass
-            e['hasAcum'] = round(eAcum,2)
+            e['hasAcum'] = round(eAcum, 2)
     return data
+
 
 @app.route('/configuracion/establecimiento', methods=['GET', 'POST'])
 @login_is_required
@@ -297,19 +305,19 @@ def establecimiento():
     params = {
         'establishment': result
     }
-    return render_template('establecimiento.html', title='Establecimiento', params=params)
+    return render_template('establecimiento.html', title='Lotes', params=params)
 
 
 @app.route('/configuracion/<dimension>', methods=['GET', 'POST'])
 @login_is_required
 def configuracion_dimension(dimension):
-    allowed_dimensions = ['transportista', 'chofer', 'destino', 'destinatario']
+    allowed_dimensions = ['transportista', 'chofer', 'destino', 'destinatario','especie','campana']
     if dimension in allowed_dimensions:
         collection = client.capataz[dimension]
         if request.method == 'POST':
             d = {
-                'name': request.form['name'],
-                'number': request.form['number']
+                'id': request.form['id'],
+                'name': request.form['name']
             }
             collection.insert_one(d)
         result = list(collection.find({}, {'_id': 0}))
@@ -437,45 +445,10 @@ def lote():
     return redirect('/configuracion/establecimiento')
 
 
-@app.route('/map_modal', methods=['GET', 'POST'])
-@login_is_required
-def map_modal():
-    return render_template('map_modal.html', title='Map Modal')
-
-
 @app.route('/map', methods=['GET', 'POST'])
 @login_is_required
 def map():
     return render_template('map.html', title='Map')
-
-
-@app.route('/map_marker', methods=['POST'])
-@login_is_required
-def map_marker():
-    coordinates = request.form.get('coordinates')
-    print(f'map_marker:{coordinates}')
-    return jsonify({'message': 'Marker coordinates received successfully', 'coordinates': coordinates})
-
-
-@app.route('/map_polygon', methods=['POST'])
-@login_is_required
-def map_polygon():
-    coordinates = request.form.get('coordinates')
-    areaInHectares = request.form.get('ha')
-    print(f'map_polygon:{coordinates}')
-    print(f'areaInHectares:{areaInHectares}')
-    return jsonify({'message': 'Polygon coordinates received successfully', 'coordinates': coordinates})
-
-
-@app.route('/map_w_polygon', methods=['GET', 'POST'])
-@login_is_required
-def map_w_polygon():
-    pol1 = [[-32.810122066446176, -61.138937337045434], [-32.80500243570437, -61.131406233545796], [-32.807309911415985, -61.12634258560871], [-32.80657080462293, -61.125956375172855],
-            [-32.804641887213315, -61.13089128629797], [-32.801973782927625, -61.126600059232636], [-32.814286055649845, -61.11662295630575], [-32.81042851386125, -61.139023161586756]]
-    pol2 = [[-32.79145436071166, -61.15548323887184], [-32.783232239060126, -61.14123893189331],
-            [-32.78683852633699, -61.138235614156876], [-32.79488002041138, -61.15265153929178]]
-
-    return render_template('map_w_polygon.html', title='Map', pol1=pol1, pol2=pol2)
 
 
 if __name__ == '__main__':
