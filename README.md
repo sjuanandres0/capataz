@@ -12,8 +12,7 @@
 - Giphy: https://giphy.com/gifs/movie-despicable-me-minions-WxxsVAJLSBsFa
 - Green: #198754
 - SQLite: https://www.youtube.com/watch?v=byHcYRpMgI4
-- SQLAlchemy: https://www.datacamp.com/tutorial/sqlalchemy-tutorial-examples
 - Green: #198754
-- Leaflet JS: https://leafletjs.com/plugins.html
+- Leaflet JS: https://leafletjs.com/
 - OpenStreetMap
 - LeafletMaps https://leaflet-extras.github.io/leaflet-providers/preview/

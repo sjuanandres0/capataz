@@ -82,10 +82,14 @@
                     {% if e.campos|length > 0 and e.status=='active' %}
                     {% endif %}
                 </h3>
-                <p><small>Campos: </small>{{e.campos|length}}</p>
-                <p><small>Hectareas: </small>{{e.hasAcum}}</p>
-                <p><small>Creation Date: {{e.creationDate}}</small></p>
-                <p>Last Update Date: {{e.lastUpdateDate}}</small></p>
+                <ul class="list-group mb-3">
+                    <li class="list-group-item">Campos: {{e.campos|length}}</li>
+                    <li class="list-group-item">Hectareas: {{e.hasAcum}}</li>
+                    <li class="list-group-item">Creation Date:
+                        {{e.creationDate}}</li>
+                    <li class="list-group-item">Last Update Date:
+                        {{e.lastUpdateDate}}</li>
+                </ul>
                 {% if e.status == 'active' %}
                 <button class="btn btn-outline-success btn-sm my-1"
                     type="button"
@@ -118,7 +122,7 @@
                 <hr>
                 {% for c in e.campos %}
                 <div class="container my-4 mx-0" name="campo">
-                    <div class="card text-center shadow-sm">
+                    <div class="card text-center shadow">
                         <div class="card-body"
                             {% if c.status == 'inactive' %}
                             style="background-color: lightgray;"
@@ -174,7 +178,8 @@
                                                 style="font-weight: 400;">Lote:
                                             </small>{{l.name}}</h5>
                                         {% if l.status == 'active' %}
-                                        <p><small>Hectareas: </small>{{l.area}}</p>
+                                        <p><small>Hectareas:
+                                            </small>{{l.area}}</p>
                                         <div class="btn-group" role="group"
                                             aria-label="Basic mixed styles example">
                                             <button
@@ -218,10 +223,10 @@
                         </div>
 
                     </div>
-                    </div>
-                    {% endfor %}
-                    {% endif %}
-                    <!-- Closing Campo -->
+                </div>
+                {% endfor %}
+                {% endif %}
+                <!-- Closing Campo -->
 
             </div>
         </div>
