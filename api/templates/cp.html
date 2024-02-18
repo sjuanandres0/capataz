@@ -12,6 +12,10 @@
         background-color: var(--bs-success);
         color: var(--bs-light);
     }
+    .list-group-item.active {
+        background-color: var(--bs-success);
+        border-color: var(--bs-success);
+    }
 </style>
 
 <div class="container mb-3">
@@ -39,7 +43,8 @@
 
 <!-- Status Pills Navigation -->
 <div class="container mx-auto">
-    <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
+    <ul class="nav nav-pills nav-fill mb-3" id="pills-tab-status"
+        role="tablist">
         {% for status, items in params.grouped_cp.items() %}
         <li class="nav-item" role="presentation">
             <button class="nav-link {% if loop.index == 1 %}active{% endif %}"
@@ -47,7 +52,7 @@
                 data-bs-toggle="pill" data-bs-target="#{{ status }}"
                 type="button" role="tab" aria-controls="{{ status }}"
                 aria-selected="{% if loop.index == 1 %}true{% else %}false{% endif %}">
-                {{loop.index}} {{ status }}
+                {{ status }} <span class="badge bg-secondary">{{items|length}}</span>
             </button>
         </li>
         {% endfor %}
@@ -57,13 +62,31 @@
 <hr>
 
 <!-- Status Pills Content -->
-<div class="tab-content" id="pills-tabContent">
+<div class="tab-content" id="pills-tab-status-content">
     {% for status, items in params.grouped_cp.items() %}
-    <div class="tab-pane fade {% if loop.index == 1 %}show active{% endif %}"
+    <div class="tab-pane fade"
         id="{{ status }}" role="tabpanel"
         aria-labelledby="{{ status }}-tab" tabindex="0">
         <div class="container">
-            <p>{{loop.index}} {{ status }} - {{ items }}</p>
+
+            <ul class="nav flex-column nav-pills nav-fill mb-3"
+                id="pills-tab-cp"
+                role="tablist">
+                {% for i in items %}
+                <li class="nav-item" role="presentation">
+                    <button
+                        class="nav-link"
+                        id="{{ i.id }}-tab"
+                        name="{{ status }}-cp"
+                        data-bs-toggle="pill" data-bs-target="#{{ i.id }}"
+                        type="button" role="tab" aria-controls="{{ i.id }}"
+                        aria-selected="false">
+                        {{loop.index}} - {{i.id}} - {{i.ctg}}
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+
         </div>
     </div>
     {% endfor %}
@@ -71,42 +94,33 @@
 
 <hr>
 
-{% for status, items in params.grouped_cp.items() %}
-<div class="container mx-auto" id={{status}} name="statusContainer"
-    >
-    <div class="btn-group-vertical d-flex" role="group"
-        aria-label="Vertical button group">
-        {% for cp in items %}
-        <button type="button" class="btn btn-outline-success"
-            name="selectCp"
-            onclick='selectCp({{cp|tojson}})'>{{ cp.id + ' - ' + cp.destination
-            + ' - ' + cp.type }}</button>
-        {% endfor %}
+<!-- CP Pills Content -->
+<div class="tab-content" id="pills-tab-cp-content">
+    {% for status, items in params.grouped_cp.items() %}
+    {% for i in items %}
+    <div class="tab-pane fade"
+        id="{{ i.id }}" role="tabpanel"
+        name="{{ status }}-cp"
+        aria-labelledby="{{ i.id }}-tab" tabindex="0">
+        <div class="container">
+            <ul class="list-group">
+                <li class="list-group-item active" aria-current="true">Numero CP: {{i.id}}</li>
+                <li class="list-group-item">CTG: {{i.ctg}}</li>
+                <li class="list-group-item">Transportista: {{i.transport}}</li>
+                <li class="list-group-item">Origen: {{i.origin}}</li>
+                <li class="list-group-item">Destino: {{i.destination}}</li>
+                <li class="list-group-item">KM: {{i.km}}</li>
+                <li class="list-group-item">KG: {{i.kg}}</li>
+                <li class="list-group-item">Especie: {{i.type}}</li>
+                <li class="list-group-item">Fecha: {{i.date}}</li>
+            </ul>
+        </div>
     </div>
+    {% endfor %}
+    {% endfor %}
 </div>
-{% endfor %}
 
 <hr>
-
-{% if params.cp | length > 0 %}
-{% for cp in params.cp %}
-<div class="container shadow" id={{cp.id}} name="cpContainer"
-    >
-    <ul class="list-group">
-        <li class="list-group-item active" aria-current="true">Numero CP:
-            {{cp.id}}</li>
-        <li class="list-group-item">CTG: {{cp.ctg}}</li>
-        <li class="list-group-item">Transportista: {{cp.transport}}</li>
-        <li class="list-group-item">Origen: {{cp.origin}}</li>
-        <li class="list-group-item">Destino: {{cp.destination}}</li>
-        <li class="list-group-item">KM: {{cp.km}}</li>
-        <li class="list-group-item">KG: {{cp.kg}}</li>
-        <li class="list-group-item">Especie: {{cp.type}}</li>
-        <li class="list-group-item">Fecha: {{cp.date}}</li>
-    </ul>
-</div>
-{% endfor %}
-{% endif %}
 
 <!-- Modal -->
 <div class="modal fade" id="newCpModal" tabindex="-1"
@@ -200,6 +214,19 @@
     const params = {{ params| tojson }}
     console.log(params)
     
+
+    Object.keys(params.grouped_cp).forEach(status => {
+        console.log('status: ', status)
+        document.getElementById(`${status}-tab`).addEventListener('hide.bs.tab', () => {
+            const elements = document.getElementsByName(`${status}-cp`)
+            elements.forEach(e => {
+                e.classList.remove('active')
+                e.ariaSelected = 'false'
+            })
+        })
+    
+    })
+
 </script>
 
 {% endblock %}
