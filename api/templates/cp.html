@@ -34,7 +34,7 @@
 <div class="container mx-auto">
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <button class="btn btn-outline-warning btn-sm" type="button"
-            data-bs-toggle="modal" data-bs-target="#newCpModal">Nueva
+            data-bs-toggle="modal" data-bs-target="#cpModal" onclick="cpModal('new','asd')">Nueva
             CP</button>
     </div>
 </div>
@@ -47,12 +47,13 @@
         role="tablist">
         {% for status, items in params.grouped_cp.items() %}
         <li class="nav-item" role="presentation">
-            <button class="nav-link {% if loop.index == 1 %}active{% endif %}"
+            <button class="nav-link"
                 id="{{ status }}-tab"
                 data-bs-toggle="pill" data-bs-target="#{{ status }}"
                 type="button" role="tab" aria-controls="{{ status }}"
                 aria-selected="{% if loop.index == 1 %}true{% else %}false{% endif %}">
-                {{ status }} <span class="badge bg-secondary">{{items|length}}</span>
+                {{ status }} <span
+                    class="badge bg-secondary">{{items|length}}</span>
             </button>
         </li>
         {% endfor %}
@@ -95,61 +96,151 @@
 <hr>
 
 <!-- CP Pills Content -->
-<div class="tab-content" id="pills-tab-cp-content">
+<div class="tab-content text-center" id="pills-tab-cp-content">
     {% for status, items in params.grouped_cp.items() %}
     {% for i in items %}
     <div class="tab-pane fade"
         id="{{ i.id }}" role="tabpanel"
         name="{{ status }}-cp"
         aria-labelledby="{{ i.id }}-tab" tabindex="0">
-        <div class="container">
+        <div class="container mb-3">
             <ul class="list-group">
-                <li class="list-group-item active" aria-current="true">Numero CP: {{i.id}}</li>
+                <li class="list-group-item list-group-item-success"
+                    aria-current="true">Numero
+                    CP: {{i.id}}</li>
                 <li class="list-group-item">CTG: {{i.ctg}}</li>
                 <li class="list-group-item">Transportista: {{i.transport}}</li>
+                <li class="list-group-item">Especie: {{i.type}}</li>
                 <li class="list-group-item">Origen: {{i.origin}}</li>
                 <li class="list-group-item">Destino: {{i.destination}}</li>
                 <li class="list-group-item">KM: {{i.km}}</li>
                 <li class="list-group-item">KG: {{i.kg}}</li>
-                <li class="list-group-item">Especie: {{i.type}}</li>
                 <li class="list-group-item">Fecha: {{i.date}}</li>
             </ul>
+        </div>
+        <div class="container">
+            <div class="btn-group" role="group"
+                aria-label="Basic mixed styles example">
+                {% if status == 'active' %}
+                <button
+                class="btn btn-success btn-sm"
+                type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#cpConfirmationModal"
+                    onclick='cpConfirmation("close",{{i|tojson|safe}})'>Confirmar
+                    Arribo</button>
+                {% endif %}
+                <button
+                    class="btn btn-primary btn-sm"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#cpModal"
+                    onclick='cpModal("update",{{i|tojson|safe}})'>Editar</button>
+                {% if status == 'active' %}
+                <button
+                class="btn btn-warning btn-sm"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#cpConfirmationModal"
+                onclick='cpConfirmation("cancel",{{i|tojson|safe}})'>Cancelar</i></button>
+                {% endif %}
+                <button
+                    class="btn btn-danger btn-sm"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#cpConfirmationModal"
+                    onclick='cpConfirmation("delete",{{i|tojson|safe}})'>Eliminar</i></button>
+            </div>
         </div>
     </div>
     {% endfor %}
     {% endfor %}
 </div>
 
-<hr>
 
-<!-- Modal -->
-<div class="modal fade" id="newCpModal" tabindex="-1"
-    aria-labelledby="newCpModalLabel" aria-hidden="true">
+<!-- Modal CP cpConfirmationModal -->
+<div class="modal fade" id="cpConfirmationModal" tabindex="-1"
+    aria-labelledby="cpConfirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="newCpModalLabel">Nueva Carta de
-                    Porte</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Clsose"></button>
+                <h1 class="modal-title fs-5" id="cpConfirmationModalLabel"></h1>
+                <button type="button" class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
-            <form method="POST">
+            <form method="POST" id="cpConfirmationForm" action="/agricultura/cp/other">
+                <input type="hidden" name="action" id="action_other">
+                <div class="modal-body">
+                    <p id="cpConfirmationMessage"></p>
+                    <div class="form-floating mb-1">
+                        <input type="number" class="form-control" name="id"
+                            id="id_other" readonly>
+                        <label for="floatingInput">Numero de CP</label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <input type="number" class="form-control" name="ctg"
+                            id="ctg_other" readonly>
+                        <label for="floatingInput">CTG</label>
+                    </div>
+                    <div id="cpConfirmationContainer" style="display: none;">
+                        <div class="form-floating mb-1">
+                            <input type="number" class="form-control" name="kg_confirmed"
+                                id="kg_confirmed">
+                            <label for="floatingInput">KG Confirmados</label>
+                        </div>
+                        <div class="form-floating mb-1">
+                            <input type="date" class="form-control" name="date_confirmed"
+                                id="date_confirmed">
+                            <label for="floatingInput">Fecha Arribo</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" id="cpConfirmationButton">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal CP (Generic) -->
+<div class="modal fade" id="cpModal" tabindex="-1"
+    aria-labelledby="cpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="cpModalLabel">Carta de
+                    Porte</h1>
+                <button type="button" class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST" id="cpForm">
+                <input type="hidden" name="action" id="actionGeneric">
+                <input type="hidden" name="status" id="status">
                 <div class="modal-body">
                     <div class="form-floating mb-1">
                         <input type="number" class="form-control" name="id"
+                            id="id"
                             placeholder="55123456" min=1 required>
                         <label for="floatingInput">Numero</label>
                     </div>
                     <div class="form-floating mb-1">
                         <input type="number" class="form-control" name="ctg"
+                            id="ctg"
                             placeholder="1234890" min=1 required>
                         <label for="floatingInput">Codigo de Trazabilidad de
                             Granos (CTG)</label>
                     </div>
                     <div class="form-floating mb-1">
                         <select class="form-select" name="tranport"
-                            aria-label="Floating label select example" required>
-                            <option value>Seleccione transportista</option>
+                            id="transport"
+                            aria-label="Floating label select example"
+                            required>
                             {% for t in params.transportista %}
                             <option value="{{t.number}}">{{t.name}}
                                 ({{t.number}})</option>
@@ -158,9 +249,9 @@
                         <label for="floatingSelect">Transportista</label>
                     </div>
                     <div class="form-floating mb-1">
-                        <select class="form-select" name="type"
-                            aria-label="Floating label select example" required>
-                            <option value>Seleccione especie</option>
+                        <select class="form-select" name="type" id="type"
+                            aria-label="Floating label select example"
+                            required>
                             {% for e in params.especie %}
                             <option value="{{e.name}}">{{e.name}}</option>
                             {% endfor %}
@@ -168,19 +259,22 @@
                         <label for="floatingSelect">Especie</label>
                     </div>
                     <div class="form-floating mb-1">
-                        <select class="form-select" name="origin"
-                            aria-label="Floating label select example" required>
-                            <option value>Seleccione origen</option>
-                            <option value="Lucio V Lopez">Lucio V Lopez</option>
+                        <select class="form-select" name="origin" id="origin"
+                            aria-label="Floating label select example"
+                            required>
+                            <option value="Lucio V Lopez">Lucio V
+                                Lopez</option>
                             <option value="Los Pinos">Los Pinos</option>
-                            <option value="El Escondido">El Escondido</option>
+                            <option value="El Escondido">El
+                                Escondido</option>
                         </select>
                         <label for="floatingSelect">Origen</label>
                     </div>
                     <div class="form-floating mb-1">
                         <select class="form-select" name="destination"
-                            aria-label="Floating label select example" required>
-                            <option value>Seleccione destino</option>
+                            id="destination"
+                            aria-label="Floating label select example"
+                            required>
                             <option value="Bunge">Bunge</option>
                             <option value="Cargill">Cargill</option>
                             <option value="Alfagro">Alfagro</option>
@@ -189,11 +283,13 @@
                     </div>
                     <div class="form-floating mb-1">
                         <input type="number" class="form-control" name="km"
+                            id="km"
                             placeholder="250" min=1 max=5000 required>
                         <label for="floatingInput">Kilometros</label>
                     </div>
                     <div class="form-floating mb-1">
                         <input type="number" class="form-control" name="kg"
+                            id="kg"
                             placeholder="29500" min=1 max=40000 required>
                         <label for="floatingInput">Kilogramos</label>
                     </div>
@@ -210,13 +306,12 @@
     </div>
 </div>
 
+
 <script>
     const params = {{ params| tojson }}
     console.log(params)
     
-
     Object.keys(params.grouped_cp).forEach(status => {
-        console.log('status: ', status)
         document.getElementById(`${status}-tab`).addEventListener('hide.bs.tab', () => {
             const elements = document.getElementsByName(`${status}-cp`)
             elements.forEach(e => {
@@ -224,8 +319,83 @@
                 e.ariaSelected = 'false'
             })
         })
-    
     })
+
+    function cpConfirmation(action,cp) {
+        console.log(`Action: ${action} for CP:${cp.id} / CTG:${cp.ctg}`)
+        document.getElementById('action_other').value = action
+        document.getElementById('id_other').value = cp.id
+        document.getElementById('ctg_other').value = cp.ctg
+        // document.getElementById('kg_confirmed').parentNode.style.display = 'none';
+        document.getElementById('cpConfirmationContainer').style.display = 'none';
+        document.getElementById('kg_confirmed').required = false;
+        document.getElementById('date_confirmed').required = false;
+        switch (action){
+            case 'cancel':
+            document.getElementById('cpConfirmationModalLabel').innerHTML = 'Cancelar CP';
+            document.getElementById('cpConfirmationButton').classList = 'btn btn-warning';
+            document.getElementById('cpConfirmationButton').innerHTML = 'Cancelar';
+            document.getElementById('cpConfirmationMessage').innerHTML = 'Esta seguro que desea CANCELAR la siguiente Carta de Porte? La accion es irreversible.';
+            break;
+            case 'delete':
+            document.getElementById('cpConfirmationModalLabel').innerHTML = 'Eliminar CP';
+            document.getElementById('cpConfirmationButton').classList = 'btn btn-danger';
+            document.getElementById('cpConfirmationButton').innerHTML = 'Eliminar';
+            document.getElementById('cpConfirmationMessage').innerHTML = 'Esta seguro que desea ELIMINAR la siguiente Carta de Porte? La accion es irreversible.';
+            break;
+            case 'close':
+            document.getElementById('cpConfirmationModalLabel').innerHTML = 'Confirmar Arribo CP';
+            document.getElementById('cpConfirmationButton').classList = 'btn btn-success';
+            document.getElementById('cpConfirmationButton').innerHTML = 'Confirmar Arribo';
+            document.getElementById('cpConfirmationMessage').innerHTML = 'Esta seguro que desea CONFIRMAR EL ARRIBO de la siguiente Carta de Porte?';
+            // document.getElementById('kg_confirmed').parentNode.style.display = 'block';
+            document.getElementById('cpConfirmationContainer').style.display = 'block';
+            document.getElementById('kg_confirmed').required = true;
+            document.getElementById('date_confirmed').required = true;
+            break;
+        }
+    }
+
+
+    function cpModal(action,cp){
+        console.log(`Action: ${action}`)
+        console.log(`CP:${cp.id} - CTG:${cp.ctg}`)
+        // document.getElementById('cpModalLabel').innerHTML = action[0].toUpperCase() + action.slice(1) + ' Carta de Porte'
+        document.getElementById('actionGeneric').value = action
+        document.getElementById('id').value = cp.id
+        document.getElementById('ctg').value = cp.ctg
+        document.getElementById('transport').value = cp.transport
+        document.getElementById('type').value = cp.type
+        document.getElementById('origin').value = cp.origin
+        document.getElementById('destination').value = cp.destination
+        document.getElementById('km').value = cp.km
+        document.getElementById('kg').value = cp.kg
+
+        switch (action){
+            case 'new':
+            document.getElementById('status').value = 'active';
+            document.getElementById("cpForm").ariaReadOnly = false;
+            break;
+            case 'update':
+            document.getElementById('status').value = cp.status; 
+            document.getElementById("cpForm").readOnly = false;
+            break;
+        }
+    }
+
+    function readOnlyFormActivated() {
+        var formFields = document.getElementById("cpForm").querySelectorAll("input, select");
+        formFields.forEach(function(field) {
+            field.readOnly = true;
+        });
+    }
+
+    function readOnlyFormDeactivated() {
+        var formFields = document.getElementById("cpForm").querySelectorAll("input, select");
+        formFields.forEach(function(field) {
+            field.readOnly = false;
+        });
+    }
 
 </script>
 

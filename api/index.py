@@ -35,7 +35,7 @@ def send_t_message(message):
         from credentials import bot_id, chat_id
     api_url = f'https://api.telegram.org/bot{bot_id}/sendMessage?chat_id={chat_id}&text={message}&parse_mode=HTML'
     response = requests.get(api_url)
-    if response.status_code==200:
+    if response.status_code == 200:
         save_t_message(message)
     return response
 
@@ -141,10 +141,36 @@ def about():
 
 
 @login_is_required
+@app.route('/agricultura/cp/other', methods=['POST'])
+def cp_other():
+    if request.method == 'POST':
+        action = request.form['action']
+        query = {'id': request.form['id'], 'ctg': request.form['ctg']}
+        print(f'Action:{action} - query:{query}')
+        if action == 'cancel':
+            newvalue = {'$set': {'status': 'cancel'}}
+            client.capataz.cp.update_one(query, newvalue)
+        elif action == 'delete':
+            client.capataz.cp.delete_one(query)
+        elif action == 'close':
+            kg_confirmed = request.form['kg_confirmed']
+            date_confirmed = request.form['date_confirmed']
+            newvalue = {'$set': {
+                'status': 'closed',
+                'kg_confirmed': kg_confirmed,
+                'date_confirmed': date_confirmed,
+                }}
+            client.capataz.cp.update_one(query, newvalue)
+    return redirect('/agricultura/cp')
+
+
+@login_is_required
 @app.route('/agricultura/cp', methods=['GET', 'POST'])
 def cp():
     if request.method == 'POST':
-        newCp = {
+        action = request.form['action']
+        print(f'Action:{action}')
+        cp = {
             "id": request.form['id'],
             "ctg": request.form['ctg'],
             "transport": request.form['tranport'],
@@ -153,12 +179,15 @@ def cp():
             "km": request.form['km'],
             "kg": request.form['kg'],
             "type": request.form['type'],
-            "status": "active",
+            "status": request.form['status'],
             "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        print(f'NEW CP: {newCp}')
         # TODO: validate input and unique id/ctg
-        client.capataz.cp.insert_one(newCp)
+        if action == 'new':
+            client.capataz.cp.insert_one(cp)
+        elif action =='update':
+            query = {'id': cp['id'], 'ctg': cp['ctg']}
+            client.capataz.cp.replace_one(query, cp)
 
     cp = list(client.capataz.cp.find({}, {'_id': 0}))
     tranportista = list(client.capataz.transportista.find({}, {'_id': 0}))
@@ -185,8 +214,8 @@ def cp():
         'destinatario': destinatario,
         'especie': especie,
     }
-    pprint('PARAMS:')
-    pprint(params)
+    # pprint('PARAMS:')
+    # pprint(params)
     return render_template('cp.html', title='Cartas de Porte', params=params)
 
 
@@ -311,7 +340,8 @@ def establecimiento():
 @app.route('/configuracion/<dimension>', methods=['GET', 'POST'])
 @login_is_required
 def configuracion_dimension(dimension):
-    allowed_dimensions = ['transportista', 'chofer', 'destino', 'destinatario','especie','campana']
+    allowed_dimensions = ['transportista', 'chofer',
+                          'destino', 'destinatario', 'especie', 'campana']
     if dimension in allowed_dimensions:
         collection = client.capataz[dimension]
         if request.method == 'POST':
