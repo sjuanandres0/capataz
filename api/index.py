@@ -148,7 +148,7 @@ def cp_other():
         query = {'id': request.form['id'], 'ctg': request.form['ctg']}
         print(f'Action:{action} - query:{query}')
         if action == 'cancel':
-            newvalue = {'$set': {'status': 'cancel'}}
+            newvalue = {'$set': {'status': 'cancelled'}}
             client.capataz.cp.update_one(query, newvalue)
         elif action == 'delete':
             client.capataz.cp.delete_one(query)
@@ -173,15 +173,16 @@ def cp():
         cp = {
             "id": request.form['id'],
             "ctg": request.form['ctg'],
-            "transport": request.form['tranport'],
-            "origin": request.form['origin'],
+            "transport": json.loads(request.form['transport']),
+            "origin": json.loads(request.form['origin']),
             "destination": request.form['destination'],
             "km": request.form['km'],
             "kg": request.form['kg'],
-            "type": request.form['type'],
+            "type": json.loads(request.form['type']),
             "status": request.form['status'],
             "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
+        print(f'CP: {cp}')
         # TODO: validate input and unique id/ctg
         if action == 'new':
             client.capataz.cp.insert_one(cp)
@@ -190,8 +191,9 @@ def cp():
             client.capataz.cp.replace_one(query, cp)
 
     cp = list(client.capataz.cp.find({}, {'_id': 0}))
-    tranportista = list(client.capataz.transportista.find({}, {'_id': 0}))
+    transportista = list(client.capataz.transportista.find({}, {'_id': 0}))
     especie = list(client.capataz.especie.find({}, {'_id': 0}))
+    establecimiento = list(client.capataz.establishment.find({}, {'_id': 0}))
     chofer = None
     destino = None
     destinatario = None
@@ -208,11 +210,12 @@ def cp():
     params = {
         'cp': cp,
         'grouped_cp': grouped_cp,
-        'transportista': tranportista,
+        'transportista': transportista,
         'chofer': chofer,
         'destino': destino,
         'destinatario': destinatario,
         'especie': especie,
+        'establecimiento': establecimiento,
     }
     # pprint('PARAMS:')
     # pprint(params)
@@ -247,12 +250,6 @@ def contracts():
 @login_is_required
 def lpg():
     return render_template('wip.html', title='Liquidaciones')
-
-
-@app.route('/reportes')
-@login_is_required
-def reportes():
-    return render_template('wip.html', title='Reportes')
 
 
 @app.route('/agricultura')
@@ -479,6 +476,26 @@ def lote():
 @login_is_required
 def map():
     return render_template('map.html', title='Map')
+
+
+import pandas as pd
+import plotly.express as px
+
+@app.route('/reportes')
+def reportes():
+    # Load sample data (you can replace this with your own dataset)
+    d = {'col1': [1, 2], 'col2': [3, 4]}
+    df = pd.DataFrame(data=d)
+
+
+    # Create a line chart using Plotly Express
+    fig = px.line(df, x='col1', y='col2')
+
+    # Convert the figure to JSON
+    chart_json = fig.to_json()
+    return render_template('report.html', title='Reportes', chart_json=chart_json)
+    # return render_template('wip.html', title='Reportes')
+
 
 
 if __name__ == '__main__':

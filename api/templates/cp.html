@@ -109,7 +109,7 @@
                     aria-current="true">Numero
                     CP: {{i.id}}</li>
                 <li class="list-group-item">CTG: {{i.ctg}}</li>
-                <li class="list-group-item">Transportista: {{i.transport}}</li>
+                <li class="list-group-item">Transportista: {{i.transport.name}} ({{i.transport.number}})</li>
                 <li class="list-group-item">Especie: {{i.type}}</li>
                 <li class="list-group-item">Origen: {{i.origin}}</li>
                 <li class="list-group-item">Destino: {{i.destination}}</li>
@@ -237,12 +237,12 @@
                             Granos (CTG)</label>
                     </div>
                     <div class="form-floating mb-1">
-                        <select class="form-select" name="tranport"
+                        <select class="form-select" name="transport"
                             id="transport"
                             aria-label="Floating label select example"
                             required>
                             {% for t in params.transportista %}
-                            <option value="{{t.number}}">{{t.name}}
+                            <option value='{{t|tojson}}'>{{t.name}}
                                 ({{t.number}})</option>
                             {% endfor %}
                         </select>
@@ -253,7 +253,7 @@
                             aria-label="Floating label select example"
                             required>
                             {% for e in params.especie %}
-                            <option value="{{e.name}}">{{e.name}}</option>
+                            <option value='{{e|tojson}}'>{{e.name}}</option>
                             {% endfor %}
                         </select>
                         <label for="floatingSelect">Especie</label>
@@ -262,12 +262,15 @@
                         <select class="form-select" name="origin" id="origin"
                             aria-label="Floating label select example"
                             required>
-                            <option value="Lucio V Lopez">Lucio V
-                                Lopez</option>
-                            <option value="Los Pinos">Los Pinos</option>
-                            <option value="El Escondido">El
-                                Escondido</option>
-                        </select>
+                                {% for e in params.establecimiento %}
+                                {% for c in e.campos %}
+                                {% for l in c.lotes %}
+                                <option value='{{e.name}} > {{c.name}} > {{l.name}}'>{{e.name}} > {{c.name}} > {{l.name}}</option>
+                                {% endfor %}
+                                {% endfor %}
+                                {% endfor %}
+                        
+                            </select>
                         <label for="floatingSelect">Origen</label>
                     </div>
                     <div class="form-floating mb-1">
