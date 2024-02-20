@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<svg id="line-plot"></svg>
+
+<script src="script.js"></script>
+
+<div id="chart-div"></div>
+<script>
+// Define the dimensions for the SVG container and the margins for the plot
+const width = 600;
+const height = 400;
+const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+
+// Generate some random data points
+const data = [];
+for (let i = 0; i < 10; i++) {
+    data.push({ x: i, y: Math.random() * 50 });
+}
+
+// Create the SVG container
+const svg = d3.select("#line-plot")
+    .attr("width", width)
+    .attr("height", height);
+
+// Create scales for x and y axes
+const xScale = d3.scaleLinear()
+    .domain(d3.extent(data, d => d.x)) // extent returns [min, max]
+    .range([margin.left, width - margin.right]);
+
+const yScale = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.y)])
+    .nice()
+    .range([height - margin.bottom, margin.top]);
+
+// Create the line generator
+const line = d3.line()
+    .x(d => xScale(d.x))
+    .y(d => yScale(d.y));
+
+// Append the line to the SVG
+svg.append("path")
+    .datum(data)
+    .attr("fill", "none")
+    .attr("stroke", "steelblue")
+    .attr("stroke-width", 2)
+    .attr("d", line);
+
+// Append x and y axes
+svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(xScale));
+
+svg.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(yScale));
+
+</script>
+
+{% endblock %}

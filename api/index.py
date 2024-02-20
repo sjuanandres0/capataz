@@ -481,20 +481,15 @@ def map():
 import pandas as pd
 import plotly.express as px
 
+@app.route('/reportes_d3')
+@login_is_required
+def reportes_d3():
+    return render_template('report_d3.html', title='Reportes')
+
 @app.route('/reportes')
+@login_is_required
 def reportes():
-    # Load sample data (you can replace this with your own dataset)
-    d = {'col1': [1, 2], 'col2': [3, 4]}
-    df = pd.DataFrame(data=d)
-
-
-    # Create a line chart using Plotly Express
-    fig = px.line(df, x='col1', y='col2')
-
-    # Convert the figure to JSON
-    chart_json = fig.to_json()
-    return render_template('report.html', title='Reportes', chart_json=chart_json)
-    # return render_template('wip.html', title='Reportes')
+    return render_template('report_apex.html', title='Reportes')
 
 
 
