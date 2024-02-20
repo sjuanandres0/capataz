@@ -478,9 +478,6 @@ def map():
     return render_template('map.html', title='Map')
 
 
-import pandas as pd
-import plotly.express as px
-
 @app.route('/reportes_d3')
 @login_is_required
 def reportes_d3():
