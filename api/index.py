@@ -159,7 +159,7 @@ def cp_other():
                 'status': 'closed',
                 'kg_confirmed': kg_confirmed,
                 'date_confirmed': date_confirmed,
-                }}
+            }}
             client.capataz.cp.update_one(query, newvalue)
     return redirect('/agricultura/cp')
 
@@ -186,7 +186,7 @@ def cp():
         # TODO: validate input and unique id/ctg
         if action == 'new':
             client.capataz.cp.insert_one(cp)
-        elif action =='update':
+        elif action == 'update':
             query = {'id': cp['id'], 'ctg': cp['ctg']}
             client.capataz.cp.replace_one(query, cp)
 
@@ -483,11 +483,13 @@ def map():
 def reportes_d3():
     return render_template('report_d3.html', title='Reportes')
 
+
 @app.route('/reportes')
 @login_is_required
 def reportes():
-    return render_template('report_apex.html', title='Reportes')
-
+    cp = list(client.capataz.cp.find({}, {'_id': 0}))
+    params = {'cp': cp}
+    return render_template('report_apex.html', title='Reportes', params=params)
 
 
 if __name__ == '__main__':

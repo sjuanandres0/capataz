@@ -5,25 +5,117 @@
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-<div class="container" id="chart"></div>
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col-md-6 mb-3">
+            <div class="container" id="chart"></div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="container" id="chartDummy"></div>
+        </div>
+    </div>
+</div>
+
+<div class="container table-responsive" id="table">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Numero CP</th>
+                <th scope="col">CTG</th>
+                <th scope="col">Especie</th>
+                <th scope="col">Status</th>
+                <th scope="col">Origen</th>
+                <th scope="col">Destino</th>
+                <th scope="col">Transportista</th>
+                <th scope="col">KM</th>
+                <th scope="col">KG</th>
+                <th scope="col">Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cp in params.cp %}
+            <tr>
+                <th scope="row">{{loop.index}}</th>
+                <td>{{cp.id}}</td>
+                <td>{{cp.ctg}}</td>
+                <td>{{cp.type}}</td>
+                <td>{{cp.status}}</td>
+                <td>{{cp.origin}}</td>
+                <td>{{cp.destination}}</td>
+                <td>{{cp.transport}}</td>
+                <td>{{cp.km}}</td>
+                <td>{{cp.kg}}</td>
+                <td>{{cp.date}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 <script>
+    const params = {{ params| tojson }}
+    console.log(params)
+
+    function calculateCpData() {
+        var result = {}
+        params.cp.forEach(cp => {
+            // console.log(`This is cp ${cp.id} - ${parseInt(cp.kg)}`)
+            if(result[cp.status]){
+                result[cp.status] = parseInt(result[cp.status]) +  parseInt(cp.kg)
+            } else {
+                result[cp.status] = parseInt(cp.kg)
+            }
+        })
+        console.log(result)
+        return result
+    }
+
+    var result = calculateCpData()
+    
     var options = {
         chart: {
-          type: 'line'
+            type: 'bar'
         },
         series: [{
-          name: 'sales',
-          data: [30,40,35,50,49,60,70,91,125]
+            name: 'KG',
+            data: Object.values(result)
         }],
         xaxis: {
-          categories: [1991,1992,1993,1994,1995,1996,1997, 1998,1999]
-        }
+            categories: Object.keys(result)
+        },
+        title: {
+            text:'Suma de KG por Status',
+        },
+        fill: {
+            colors: ['#198754']
+        },
       }
       
-      var chart = new ApexCharts(document.querySelector("#chart"), options);
+    var chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
       
-      chart.render();
+    
+    var optionsDummy = {
+        chart: {
+        type: 'line'
+        },
+        series: [{
+        name: 'KG',
+        data: [30,40,35,50,49,60,70,91,125]
+        }],
+        xaxis: {
+        categories: [1991,1992,1993,1994,1995,1996,1997, 1998,1999]
+        },
+        title: {
+            text:'Historico de KG',
+        },
+        colors: ['#198754']
+    }
+
+    var chartDummy = new ApexCharts(document.querySelector("#chartDummy"), optionsDummy);
+    chartDummy.render();
+
 </script>
 
 {% endblock %}
