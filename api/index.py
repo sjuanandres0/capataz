@@ -7,6 +7,9 @@ from bcrypt import hashpw, checkpw, gensalt
 from functools import wraps
 import requests
 from pprint import pprint
+import re
+from pdfminer.high_level import extract_text
+
 
 # print(sys.path)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -490,6 +493,19 @@ def reportes():
     cp = list(client.capataz.cp.find({}, {'_id': 0}))
     params = {'cp': cp}
     return render_template('report_apex.html', title='Reportes', params=params)
+
+@app.route('/cp_pdf_reader')
+@login_is_required
+def cp_pdf_reader():
+    text = extract_text("cp_dummy_test_1.pdf")
+    pattern = r'\nCTG: (\d{11})*'
+    match = re.search(pattern, text)
+    if match:
+        ctg = match.group(1)
+        print('ctg:',ctg)
+        return ctg
+    else:
+        return 'fail'
 
 
 if __name__ == '__main__':
