@@ -4,14 +4,18 @@
 {% block content %}
 
 <div class="container">
-    <div class="mb-3">
-        <form method="POST" enctype="multipart/form-data" action="/cp_pdf_reader">
-            <label for="formFile" class="form-label">Default file input</label>
-            <input class="form-control" type="file" id="formFile" name="file">
-            <br>
-            <button class="btn btn-success" type="submit">Upload</button>
-        </form>
-    </div>
+    <form method="POST" enctype="multipart/form-data" action="/cp_pdf_reader">
+        <label for="formFile" class="form-label">Default file input</label>
+        <input class="form-control" type="file" id="formFile" name="file">
+        <br>
+        <button class="btn btn-success" type="submit">Upload</button>
+    </form>
 </div>
+
+{% if cp %}
+<div class="container mt-4">
+    {{cp}}
+</div>
+{% endif %}
 
 {% endblock %}

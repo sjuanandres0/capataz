@@ -504,9 +504,32 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def getCtg(text):
+    pattern = r'\nCTG: (\d{11})*'
+    match = re.search(pattern, text)
+    if match:
+        ctg = match.group(1)
+        return ctg
+    else:
+        return ''
+
+def getTitular(text):
+    pattern = r"Titular Carta de Porte:\s*\n(\d{11}) - ([A-Z\s]+)\s*\nRemitente Comercial Productor:"
+    match = re.search(pattern, text)
+    if match:
+        titular_cuit = match.group(1)
+        titular_name = match.group(2)
+        print("titular_cuit:", titular_cuit)
+        print("titular_name:", titular_name)
+        return titular_cuit, titular_name 
+    else:
+        return ''
+
+
 @app.route('/cp_pdf_reader',methods=['GET','POST'])
 @login_is_required
 def cp_pdf_reader():
+    cp = {}
     if request.method == 'POST':
         if 'file' not in request.files:
             flash(['No file part','Success'])
@@ -521,16 +544,16 @@ def cp_pdf_reader():
             if file:
                 pdf_data = file.read()
                 text = extract_text(BytesIO(pdf_data))
-            pattern = r'\nCTG: (\d{11})*'
-            match = re.search(pattern, text)
-            if match:
-                ctg = match.group(1)
-                print('ctg:',ctg)
-                # return ctg
-                return jsonify({'ctg': ctg})
-            else:
-                return 'fail'
-    return render_template('upload_file_dummy.html')
+            ctg = getCtg(text)
+            titular_cuit, titular_name = getTitular(text)
+            cp = {
+                'ctg':ctg
+                ,'titular_cuit':titular_cuit
+                ,'titular_name':titular_name
+            }
+            # return jsonify({'cp': cp})
+
+    return render_template('upload_file_dummy.html',cp=cp)
 
 
 if __name__ == '__main__':
