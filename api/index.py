@@ -9,7 +9,10 @@ import requests
 from pprint import pprint
 import re
 from pdfminer.high_level import extract_text
+from werkzeug.utils import secure_filename
+from io import BytesIO
 
+ALLOWED_EXTENSIONS = {'pdf'}
 
 # print(sys.path)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -495,11 +498,6 @@ def reportes():
     return render_template('report_apex.html', title='Reportes', params=params)
 
 
-from werkzeug.utils import secure_filename
-from io import BytesIO
-
-ALLOWED_EXTENSIONS = {'pdf'}
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -526,9 +524,9 @@ def getTitular(text):
         return ''
 
 
-@app.route('/cp_pdf_reader',methods=['GET','POST'])
+@app.route('/cp_pdf_reader_file',methods=['POST'])
 @login_is_required
-def cp_pdf_reader():
+def cp_pdf_reader_file():
     cp = {}
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -551,8 +549,13 @@ def cp_pdf_reader():
                 ,'titular_cuit':titular_cuit
                 ,'titular_name':titular_name
             }
-            # return jsonify({'cp': cp})
+            print(f'CP:{cp}')
+            return jsonify(cp)
 
+
+@app.route('/cp_pdf_reader',methods=['GET'])
+@login_is_required
+def cp_pdf_reader():
     return render_template('upload_file_dummy.html',cp=cp)
 
 

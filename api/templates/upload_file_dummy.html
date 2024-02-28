@@ -4,18 +4,40 @@
 {% block content %}
 
 <div class="container">
-    <form method="POST" enctype="multipart/form-data" action="/cp_pdf_reader">
-        <label for="formFile" class="form-label">Default file input</label>
-        <input class="form-control" type="file" id="formFile" name="file">
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="fileInput" class="form-label">Large file input
+            example</label>
+        <input type="file" class="form-control form-control-lg" id="fileInput"
+            name="file" onchange="uploadFile()">
         <br>
-        <button class="btn btn-success" type="submit">Upload</button>
     </form>
 </div>
 
-{% if cp %}
-<div class="container mt-4">
-    {{cp}}
+<div class="container mt-4" id="responseContainer">
+    <!-- Response from server will be displayed here -->
 </div>
-{% endif %}
+
+<script>
+    function uploadFile() {
+        var formData = new FormData();
+        var fileInput = document.getElementById('fileInput');
+        formData.append('file', fileInput.files[0]);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/cp_pdf_reader_file', true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var response = xhr.responseText;
+                displayResponse(response);
+            }
+        };
+        xhr.send(formData);
+    }
+
+    function displayResponse(response) {
+        var responseContainer = document.getElementById('responseContainer');
+        responseContainer.innerHTML = "<p>" + response + "</p>";
+    }
+</script>
 
 {% endblock %}
